@@ -7,6 +7,7 @@ We have some cleanup to do in the sources before releasing it. But rest assured 
 Right now the linux, mac and windows source trees have diverged a little but we will merge it all into one nice
 repository here.
 
-Right now we're focusing on getting everything working + tested first and marketing our kickstarter...
+Check out the bootloader repo that already has some code submitted that compiles.
+We've updated the makefile and made the caterina bootloader work on a newer avr-gcc version.
 
 
