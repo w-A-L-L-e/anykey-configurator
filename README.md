@@ -20,3 +20,8 @@ Changing keyboard layout and device delays (keypress and initial delays can be a
 Master reset allows to factory reset a device if you lost the salt and linked this to a pc.
 Upgrade salt is allowed to unlink from a foreign pc. Devices map file is managed by anykey_crd and anykey_save tools seperately.
 
+
+
+Windows version is also nearly completed:
+
+<img width="414" alt="anykey_windows_june_2019_advanced" src="https://user-images.githubusercontent.com/710803/59970343-94a64d00-955b-11e9-8449-94b602a09505.PNG">
