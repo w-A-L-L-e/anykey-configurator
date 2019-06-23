@@ -3,31 +3,28 @@
 # Project created by QtCreator 2017-06-03T20:48:58
 #
 #-------------------------------------------------
-
+# QMAKE_MAC_SDK = macosx10.14
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-# https://doc-snapshots.qt.io/qt5-5.12/macos.html
-
 TARGET = AnyKey
 TEMPLATE = app
-#ICON = anykey_logo.icns
+# ICON = anykey_logo.icns
 RC_FILE = anykey_icon.rc
 
-QMAKE_CXXFLAGS += -s -Os
-CONFIG += static -Os -s
-CONFIG += staticlib
-#QMAKE_LFLAGS += -static
 
+CONFIG += static
+# CONFIG += static -Os -s
 QT += network
 
 SOURCES += main.cpp\
         mainwindow.cpp
 
 HEADERS  += mainwindow.h
-
 FORMS    += anykey.ui
 
-
 #mainwindow.ui
+
+RESOURCES += \
+    AnyKey.qrc
