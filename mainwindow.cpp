@@ -914,7 +914,7 @@ void MainWindow::on_actionAbout_triggered(){
                             tr("AnyKeyConfigurator"),
                             tr( "AnyKey is a product of AnyKey bvba.\n"
                                 "Patented in Belgium BE1019719 (A3).\n\n"
-                                "Version : 2.1 \n"
+                                "Version : 2.2 \n"
                                 "Author  : Walter Schreppers"),
                              QMessageBox::Ok
                              );
@@ -925,7 +925,7 @@ void MainWindow::on_actionAbout_triggered(){
     mbox.setText( tr("AnyKey Configurator\n"
                      "AnyKey is a product of AnyKey bvba.\n"
                      "Patented in Belgium BE1019719 (A3).\n\n"
-                     "Version : 2.1 \n"
+                     "Version : 2.2 \n"
                      "Author  : Walter Schreppers"));
     mbox.exec();
 

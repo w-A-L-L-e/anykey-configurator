@@ -15,7 +15,6 @@ RC_FILE = anykey_icon.rc
 
 
 CONFIG += static
-# CONFIG += static -Os -s
 QT += network
 
 SOURCES += main.cpp\
@@ -23,8 +22,6 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h
 FORMS    += anykey.ui
-
-#mainwindow.ui
 
 RESOURCES += \
     AnyKey.qrc
