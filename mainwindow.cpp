@@ -7,7 +7,7 @@
 #include <qdir.h>
 #include <qmessagebox.h>
 #include <qlineedit.h>
-#include <quuid.h>
+#include <quuid.h> 
 
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -914,7 +914,7 @@ void MainWindow::on_actionAbout_triggered(){
                             tr("AnyKeyConfigurator"),
                             tr( "AnyKey is a product of AnyKey bvba.\n"
                                 "Patented in Belgium BE1019719 (A3).\n\n"
-                                "Version : 2.1 \n"
+                                "Version : 2.2 \n"
                                 "Author  : Walter Schreppers"),
                              QMessageBox::Ok
                              );
@@ -925,7 +925,7 @@ void MainWindow::on_actionAbout_triggered(){
     mbox.setText( tr("AnyKey Configurator\n"
                      "AnyKey is a product of AnyKey bvba.\n"
                      "Patented in Belgium BE1019719 (A3).\n\n"
-                     "Version : 2.1 \n"
+                     "Version : 2.2 \n"
                      "Author  : Walter Schreppers"));
     mbox.exec();
 
@@ -947,7 +947,7 @@ void MainWindow::on_showPassword_clicked(bool checked)
 QString MainWindow::randomString(int password_length){
     QString randomPass="";
     while(randomPass.length() < password_length){
-        randomPass+=QUuid::createUuid().toString();
+        randomPass+= QUuid::createUuid().toString();
     }
     randomPass.replace("{","");
     randomPass.replace("-","");
@@ -1014,9 +1014,15 @@ void MainWindow::hideAdvancedItems(){
   ui->daemonRestartButton->hide();
   ui->typeButton->hide();
 
+#ifdef __APPLE__
   this->setMinimumWidth(540);
   this->setMinimumHeight(178);
   this->setMaximumHeight(178);
+#else
+  this->setMinimumWidth(640);
+  this->setMinimumHeight(230);
+  this->setMaximumHeight(230);
+#endif
 }
 
 void MainWindow::on_advancedSettingsToggle_clicked(bool checked)
@@ -1058,10 +1064,15 @@ void MainWindow::on_advancedSettingsToggle_clicked(bool checked)
     ui->deviceIdLabel->show();
     ui->saltStatus->show();
     ui->updateSaltButton->show();
-
+#ifdef __APPLE__
     this->setMinimumWidth(540);
     this->setMinimumHeight(420);
     this->setMaximumHeight(420);
+#else
+	this->setMinimumWidth(640);
+    this->setMinimumHeight(505);
+    this->setMaximumHeight(505);
+#endif
   }
   else{//hide items
     hideAdvancedItems();
