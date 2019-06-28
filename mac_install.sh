@@ -18,7 +18,7 @@ upx -9 /Applications/AnyKey.app/Contents/MacOS/anykey_crd
 upx -9 /Applications/AnyKey.app/Contents/MacOS/anykey_save
 
 echo "update launchctl daemon and copy plist file..."
-cp org.anykey.configurator.plist ~/Library/LaunchAgents/org.anykey.configurator.plist
+cp mac_autostart_install/org.anykey.configurator.plist ~/Library/LaunchAgents/org.anykey.configurator.plist
 launchctl unload ~/Library/LaunchAgents/org.anykey.configurator.plist
 launchctl load ~/Library/LaunchAgents/org.anykey.configurator.plist
 
