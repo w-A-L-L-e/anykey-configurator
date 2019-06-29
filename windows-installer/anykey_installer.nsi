@@ -5,19 +5,19 @@
 
 ; The name of the installer
 Name "AnyKey"
-BrandingText "AnyKey Configurator v1.0.2"
+BrandingText "AnyKey Configurator v2.0.0"
 
 ; The file to write
 OutFile "AnyKey Installer.exe"
 
-Icon "anykey_app_logo.ico"
+Icon "..\anykey_app_logo.ico"
 ; UninstallIcon "..."
 
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\AnyKey
 
-; Registry key to check for directory (so if you install again, it will 
+; Registry key to check for directory  
 ; overwrite the old one automatically)
 InstallDirRegKey HKLM "Software\AnyKey" "Install_Dir"
 
@@ -46,9 +46,9 @@ Section "AnyKey configurator(required)"
   SetOutPath $INSTDIR
   
   ; Put file there
-  File "release\AnyKey.exe"
-  File "release\anykey_save.exe"
-  File "release\list_coms.exe"
+  File "..\release\AnyKey.exe"
+  File "..\release\anykey_save.exe"
+  File "..\release\anykey_crd.exe"
   
   
   ; Write the installation path into the registry
@@ -85,7 +85,7 @@ Section "Uninstall"
   ; Remove files and uninstaller
   Delete $INSTDIR\AnyKey.exe
   Delete $INSTDIR\anykey_save.exe
-  Delete $INSTDIR\list_coms.exe
+  Delete $INSTDIR\anykey_crd.exe
   Delete $INSTDIR\uninstall.exe
 
   ; Remove shortcuts, if any

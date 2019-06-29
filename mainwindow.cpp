@@ -329,7 +329,9 @@ void MainWindow::showConfigurator(){
     this->showNormal();
     this->show();
     this->raise(); //bring on top for Mac OS
-    //this->requestActivate(); // appWindow->requestActivate(); -> for Windows
+#ifdef _WIN32
+    this->activateWindow(); // appWindow->requestActivate(); -> for Windows
+#endif
 
     runCommand("read_settings\n"); //whenever anykey is inserted,read its settings
 }
@@ -1018,10 +1020,10 @@ void MainWindow::hideAdvancedItems(){
   this->setMinimumWidth(540);
   this->setMinimumHeight(178);
   this->setMaximumHeight(178);
-#else
-  this->setMinimumWidth(640);
-  this->setMinimumHeight(230);
-  this->setMaximumHeight(230);
+#else //windows, linux
+  this->setMinimumWidth(800); //520
+  this->setMinimumHeight(257); //187
+  this->setMaximumHeight(257);
 #endif
 }
 
@@ -1068,10 +1070,10 @@ void MainWindow::on_advancedSettingsToggle_clicked(bool checked)
     this->setMinimumWidth(540);
     this->setMinimumHeight(420);
     this->setMaximumHeight(420);
-#else
-	this->setMinimumWidth(640);
-    this->setMinimumHeight(505);
-    this->setMaximumHeight(505);
+#else //windows and linux
+	this->setMinimumWidth(800); //520 looks good on 200% and 150% scale
+    this->setMinimumHeight(620); //380 but width 640 and height 420 is minimum for 100% scale on retina...
+    this->setMaximumHeight(620);
 #endif
   }
   else{//hide items
