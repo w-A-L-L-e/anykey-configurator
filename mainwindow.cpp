@@ -698,6 +698,7 @@ void MainWindow::anykeyParseSettings(const QString& response ){
     if( deviceId == "ffffff"){
        ui->deviceId->setText("Blank");
        ui->copyProtectToggle->setEnabled(false);
+       ui->copyProtectToggle->setChecked(false); //make it type password on next save without cr!
        ui->updateSaltButton->setEnabled(true);
        ui->updateSaltButton->setText("Generate Salt");
        ui->saltStatus->setText("Unprotected");
