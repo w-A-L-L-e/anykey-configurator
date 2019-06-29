@@ -727,12 +727,12 @@ void MainWindow::anykeySaveSettings()
         activateReturnPress=1;
     }
 
-    //TODO: test this + add firmware option to save it
     QString write_flags = "write_flags:";
     write_flags+= QString::number(activateReturnPress)+" ";
     write_flags+= QString::number(activateCopyProtect)+" ";
     write_flags += "\n";
 
+    qDebug()<<"runCommand="<<write_flags<<endl;
     runCommand( write_flags );
 }
 
@@ -894,10 +894,9 @@ void MainWindow::on_saveButton_clicked()
         ui->passwordEdit->setFocus();
     }
     else{
-        setStatus("Skipping empty password, reading settings...");
+        setStatus("Skipping empty password, writing addReturn and copyProtect flags...");
+        anykeySaveSettings();
         runCommand("read_settings\n");
-        //anykeySaveSettings();
-        //anykeyReadSettings();
         setStatus("Saved flags and read settings. (Skipped empty pass)");
     }
 }
@@ -1140,7 +1139,7 @@ void MainWindow::on_formatEepromButton_clicked()
     /*
      * immediately re-reading freezes/crashses the device!
      *  setStatus("Reading settings...");
-    anykeyReadSettings();
+    runCommand("read_settings\n");
     setStatus("Device reset, re-insert and save a new password...");
     */
 }
