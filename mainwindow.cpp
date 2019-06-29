@@ -1019,9 +1019,14 @@ void MainWindow::hideAdvancedItems(){
   this->setMinimumHeight(178);
   this->setMaximumHeight(178);
 #else
-  this->setMinimumWidth(640);
-  this->setMinimumHeight(230);
-  this->setMaximumHeight(230);
+  this->setMinimumWidth(860);
+  this->setMinimumHeight(310);
+  this->setMaximumHeight(310);
+  /* without scaling we use this in windows:
+    this->setMinimumWidth(640);
+    this->setMinimumHeight(230);
+    this->setMaximumHeight(230);
+  */
 #endif
 }
 
@@ -1069,9 +1074,14 @@ void MainWindow::on_advancedSettingsToggle_clicked(bool checked)
     this->setMinimumHeight(420);
     this->setMaximumHeight(420);
 #else
-	this->setMinimumWidth(640);
-    this->setMinimumHeight(505);
-    this->setMaximumHeight(505);
+	this->setMinimumWidth(860);
+    this->setMinimumHeight(670);
+    this->setMaximumHeight(670);
+	/* without scaling in windows
+      this->setMinimumWidth(640);
+      this->setMinimumHeight(505);
+      this->setMaximumHeight(505);
+	*/
 #endif
   }
   else{//hide items
