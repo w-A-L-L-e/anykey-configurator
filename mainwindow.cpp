@@ -84,27 +84,8 @@ void MainWindow::updateStatusSlot(){
 }
 
 void MainWindow::setStatus(const QString& msg){
-    /* old version
-        qDebug()<<"status: "<<msg<<endl;
-        ui->statusLabel->setText(msg);
-        ui->statusLabel->repaint();
-
-        //qApp->processEvents();
-        qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-    */
     qDebug()<<"status: "<<msg<<endl;
     statusBar()->showMessage(msg, 5000);
-
-
-    //ui->statusbar->showMessage( msg, 3 ); //also does not show our messag :(
-    //this->statusMessage = msg;
-    //QTimer::singleShot ( 20, this, SLOT(updateStatusSlot() ) );
-
-    // When the action triggered, set the progress bar at 51%
-    //int percent = 100.0*((double)msg.length() / 255.0);
-    //statusProgressBar->setValue(msg.length());
-    //statusProgressBar->hide();
-
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -163,16 +144,6 @@ void MainWindow::readCRD(){
         if(line.length()==0) continue;
         if(line!="cmd: "){ //only print interesting lines on debug
             qDebug() << "READ: '" << line << "'";
-        }
-        if(line=="disconnect"){
-            setStatus("Anykey disconnected");
-            ui->saveButton->setEnabled(false);
-            ui->applyAdvancedSettingsBtn->setEnabled(false);
-            ui->typeButton->setEnabled(false);
-            ui->formatEepromButton->setEnabled(false);
-            ui->updateSaltButton->setEnabled(false);
-
-            line="";
         }
         if(line.contains("connected")){
             //qDebug() << "line='"<<line<<"'"<<endl;
@@ -267,7 +238,20 @@ void MainWindow::readCRD(){
         }
         if(line.contains("done")){
             setStatus("AnyKey typed it's password after a CR");
+            line="";
         }
+
+        if(line.startsWith("disconnect")){
+            setStatus("Anykey disconnected");
+            ui->saveButton->setEnabled(false);
+            ui->applyAdvancedSettingsBtn->setEnabled(false);
+            ui->typeButton->setEnabled(false);
+            ui->formatEepromButton->setEnabled(false);
+            ui->updateSaltButton->setEnabled(false);
+
+            line="";
+        }
+
     }
 
 }
