@@ -4,7 +4,7 @@
 int main(int argc, char *argv[])
 {
     // make windows with retina or 4k still look good
-    //QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QApplication a(argc, argv);
     MainWindow w;

@@ -1021,9 +1021,14 @@ void MainWindow::hideAdvancedItems(){
   this->setMinimumHeight(178);
   this->setMaximumHeight(178);
 #else //windows, linux
-  this->setMinimumWidth(800); //520
-  this->setMinimumHeight(257); //187
-  this->setMaximumHeight(257);
+  /*this->setMinimumWidth(800); //520
+  this->setMinimumHeight(237); //187
+  this->setMaximumHeight(237);*/
+
+  this->setMinimumWidth(540); 
+  this->setMinimumHeight(178); 
+  this->setMaximumHeight(178);
+
 #endif
 }
 
@@ -1071,9 +1076,12 @@ void MainWindow::on_advancedSettingsToggle_clicked(bool checked)
     this->setMinimumHeight(420);
     this->setMaximumHeight(420);
 #else //windows and linux
-	this->setMinimumWidth(800); //520 looks good on 200% and 150% scale
-    this->setMinimumHeight(620); //380 but width 640 and height 420 is minimum for 100% scale on retina...
-    this->setMaximumHeight(620);
+	/*this->setMinimumWidth(800); //520 looks good on 200% and 150% scale
+    this->setMinimumHeight(560); //380 but width 640 and height 420 is minimum for 100% scale on retina...
+    this->setMaximumHeight(560);*/
+	this->setMinimumWidth(540); 
+    this->setMinimumHeight(380); 
+    this->setMaximumHeight(380);
 #endif
   }
   else{//hide items
