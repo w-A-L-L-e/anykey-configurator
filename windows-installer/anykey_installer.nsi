@@ -52,9 +52,9 @@ Section "AnyKey configurator(required)"
   
   
   ; Write the installation path into the registry
-  WriteRegStr HKLM SOFTWARE\AnyKey "Install_Dir" "$INSTDIR"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Run" "AnyKey Configurator" '"$INSTDIR\AnyKey.exe -minimized"' 
-  
+  WriteRegStr HKLM "SOFTWARE\AnyKey" "Install_Dir" "$INSTDIR"
+  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Run" "AnyKey" '"$INSTDIR\AnyKey.exe -minimized"' 
+
   ; Write the uninstall keys for Windows
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AnyKey" "DisplayName" "AnyKey configurator"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AnyKey" "UninstallString" '"$INSTDIR\uninstall.exe"'
@@ -81,7 +81,8 @@ Section "Uninstall"
   
   ; Remove registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AnyKey"
-  DeleteRegKey HKLM SOFTWARE\AnyKey
+  DeleteRegKey HKLM "SOFTWARE\AnyKey"
+  DeleteRegValue HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Run" "AnyKey"
 
   ; Remove files and uninstaller
   Delete $INSTDIR\AnyKey.exe
