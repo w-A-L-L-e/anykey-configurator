@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>AnyKey configurator</string>
+   <string>AnyKey</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -533,7 +533,7 @@
      <x>0</x>
      <y>0</y>
      <width>561</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuAnyKey">
@@ -567,6 +567,9 @@
    <property name="shortcut">
     <string>Ctrl+T</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
   <action name="actionHide">
    <property name="text">
@@ -581,7 +584,10 @@
     <string>Preferences</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+,</string>
+    <string>Ctrl+O</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
  </widget>

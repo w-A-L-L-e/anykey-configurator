@@ -127,6 +127,7 @@ MainWindow::MainWindow(QWidget *parent) :
         setStatus("");
         hideAdvancedItems();
         ui->passwordEdit->setFocus();
+        ui->menubar->hide();
     }
     else{
         showRegisteredControls();
@@ -300,6 +301,15 @@ void MainWindow::showRegisteredControls(){
     ui->generateLength->show();
     ui->addReturn->show();
     ui->advancedSettingsToggle->show();
+    ui->menubar->show();
+#ifdef _WIN32
+    //todo change actionOpen text
+    //QAction* openAction = menuBar()->findChild<QMenu*>("menuAnyKey")->findChild<QAction*>("actionOpen");
+    //openAction->setShortcut(Qt::CTRL + Qt::Key_O);
+#else
+    // on mac it should be qt::ctrl+qt::key_comma ...
+#endif
+
     hideAdvancedItems();
 
     ui->copyProtectToggle->setDisabled(true);
@@ -361,9 +371,14 @@ void MainWindow::appFocusChanged(Qt::ApplicationState state){
 // menu items on tray icon!
 void MainWindow::createActions()
 {
+	
     restoreAction = new QAction(tr("&Open AnyKey Configurator"), this);
+#ifdef _WIN32
+	restoreAction->setShortcut(Qt::CTRL + Qt::Key_O); //shows but is not triggered with shortcut
+#else
     restoreAction->setShortcut(Qt::CTRL + Qt::Key_Comma); //shows but is not triggered with shortcut
-    connect(restoreAction, SIGNAL(triggered()), this, SLOT(showConfigurator()));
+#endif
+	connect(restoreAction, SIGNAL(triggered()), this, SLOT(showConfigurator()));
 
     minimizeAction = new QAction(tr("&Minimize"), this);
     minimizeAction->setShortcut(Qt::CTRL + Qt::Key_M); //this is mostly for ref
@@ -377,9 +392,15 @@ void MainWindow::createActions()
     //When typeaction is used, start typing pass after windw
     //loses focus
     bPendingPasswordType = false;
+
+#ifdef _WIN32
+    typeAction = new QAction(tr("Type &Password"), this);
+    typeAction->setShortcut(Qt::CTRL + Qt::Key_P);
+#else
     typeAction = new QAction(tr("&Type Password"), this);
     typeAction->setShortcut(Qt::CTRL + Qt::Key_T);
-    connect(typeAction, SIGNAL(triggered()),this,SLOT( typePasswordAgain() ));
+#endif
+	connect(typeAction, SIGNAL(triggered()),this,SLOT( typePasswordAgain() ));
     connect(qApp, SIGNAL(applicationStateChanged(Qt::ApplicationState )), this, SLOT(appFocusChanged(Qt::ApplicationState )));
 
     quitAction = new QAction(tr("&Quit"), this);

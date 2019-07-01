@@ -66,17 +66,22 @@ Section "AnyKey configurator(required)"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AnyKey" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AnyKey" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AnyKey" "NoRepair" 1
-  WriteUninstaller "uninstall.exe"
+  WriteUninstaller "$INSTDIR\uninstall.exe"
   
 SectionEnd
 
 ; Optional section (can be disabled by the user)
 Section "Start Menu Shortcuts"
 
-  CreateDirectory "$SMPROGRAMS\AnyKey"
-  CreateShortcut "$SMPROGRAMS\AnyKey\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortcut "$SMPROGRAMS\AnyKey\AnyKey configurator.lnk" "$INSTDIR\AnyKey.exe" "" "$INSTDIR\AnyKey.exe" 0
-  
+  ${If} ${RunningX64}
+  	; CreateDirectory "$SMPROGRAMS\AnyKey"
+    ; CreateShortcut "$SMPROGRAMS\AnyKey\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+    CreateShortcut "$SMPROGRAMS\AnyKey.lnk" "$INSTDIR\AnyKey.exe" "" "$INSTDIR\AnyKey.exe" 0
+  ${Else}   
+	CreateDirectory "$SMPROGRAMS\AnyKey"
+    CreateShortcut "$SMPROGRAMS\AnyKey\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+    CreateShortcut "$SMPROGRAMS\AnyKey\AnyKey configurator.lnk" "$INSTDIR\AnyKey.exe" "" "$INSTDIR\AnyKey.exe" 0
+  ${EndIf}
 SectionEnd
 
 ;--------------------------------
