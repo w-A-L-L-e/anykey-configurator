@@ -17,10 +17,13 @@ ICON = anykey_logo.icns
 CONFIG += static
 QT += network
 
-SOURCES += main.cpp\
-        mainwindow.cpp
+SOURCES +=  main.cpp\
+            mainwindow.cpp\
+            launchagent.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h\
+            launchagent.h
+
 FORMS    += anykey.ui
 
 RESOURCES += \

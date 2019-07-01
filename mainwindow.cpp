@@ -16,11 +16,161 @@
 #include <QUrlQuery>
 #include <QTimer>
 
+#ifdef __APPLE__
+#include "launchagent.h"
+#endif
+
 using namespace std;
 
 //exe name of anykey_save
 #define ANYKEY_SAVE "anykey_save"
 #define ANYKEY_TYPE_DAEMON "anykey_crd"
+
+//constructor checks license and shows
+//alternate gui if license check fails to register.
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    licenseRegistered = false;
+    anykeycrd = new QProcess();
+
+    this->setMinimumWidth(425);
+    ui->setupUi(this);
+
+    // Set status and progress bar
+    // create objects for the label and progress bar
+    statusLabel = new QLabel(this);
+    //statusProgressBar = new QProgressBar(this);
+    // make progress bar text invisible
+    //statusProgressBar->setTextVisible(false);
+
+    // add the two controls to the status bar
+    ui->statusbar->addPermanentWidget(statusLabel,0);
+    //ui->statusbar->addPermanentWidget(statusProgressBar,1);
+
+
+    ui->titleLabel->setText("");
+    setStatus("Checking license...");
+
+    // read license file here!!!
+    if( !checkLicense() ){
+        ui->titleLabel->setText("Enter activation code");
+        ui->passwordEdit->setEchoMode(QLineEdit::Normal);
+        ui->showPassword->hide();
+        ui->generateButton->hide();
+        ui->advancedSettingsToggle->hide();
+        ui->copyProtectToggle->hide();
+        ui->generateLength->hide();
+        ui->addReturn->hide();
+        ui->saveButton->setText("Register");
+        setStatus("");
+        hideAdvancedItems();
+        ui->passwordEdit->setFocus();
+        ui->menubar->hide();
+    }
+    else{
+        showRegisteredControls();
+        //runCommand("read_settings\n"); //whenever anykey is inserted,read its settings
+    }
+
+}
+
+
+//destructor stops the anykey_crd daemon also now.
+MainWindow::~MainWindow()
+{
+    stopAnykeyCRD();
+    delete anykeycrd;
+    delete ui;
+}
+
+
+// This has double functionality before registration
+// the save button is the 'register' button.
+// afterwards if licens check ok then we use it to save the
+// new passwords
+void MainWindow::on_saveButton_clicked()
+{
+    if( !checkLicense() ){
+        setStatus("Registering activation code : "+ui->passwordEdit->text());
+        //QTimer::singleShot(200, this, SLOT(updateCaption())); -> todo...
+
+        bool licenseOk = MainWindow::registerLicense(ui->passwordEdit->text());
+
+        if (!licenseOk){
+            setStatus("Invalid activation code");
+            return;
+        }
+        else{ //activation ok!
+            if( checkLicense() ){
+                showRegisteredControls();
+                ui->titleLabel->setText("Insert your AnyKey then type a password and click on save:");
+                ui->passwordEdit->setEchoMode(QLineEdit::Password);
+                ui->saveButton->setText("Save");
+                setStatus("Registration successfull. AnyKeyConfigurator activated!");
+                ui->passwordEdit->setText("");
+                ui->copyProtectToggle->show();
+                ui->copyProtectToggle->setEnabled(false);
+                ui->copyProtectToggle->setChecked(false);
+                return;
+            }
+            else{
+                setStatus("Invalid license");
+                return;
+            }
+        }
+    }
+
+    QString password = ui->passwordEdit->text();
+
+    if( password.length() > 0 ){
+        setStatus("Saving password...");
+
+        QString output_str = anykeySavePassword( password );
+        if( output_str.contains("License check failed!") ){
+            /*QMessageBox::critical(this, tr("AnyKey"),
+                                                    tr("Invalid License!\n"
+                                                    "You need to activate this app using the activation code given."),
+                                                    QMessageBox::Ok );*/
+
+            setStatus("Invalid license or activation code!");
+        }
+        else if( output_str.contains("ERROR: could not find a connected") ){
+            QMessageBox::warning(this, tr("AnyKey"),
+                                                    tr("Could not find a connected AnyKey in any USB ports\n"
+                                                    "Please insert your AnyKey and try again."),
+                                                    QMessageBox::Ok );
+
+            setStatus("Save failed, AnyKey not found");
+            return;
+        }
+        else if( output_str.contains("ERROR:")){
+            setStatus(output_str + "try re-inserting and/or saving again");
+        }
+        else{
+          qDebug()<<"password save output="<< output_str << endl;
+            // if( output_str.contains("password saved")){
+            // patch, sometimes it's empty then most likely its also saved correctly
+            //setStatus("unknown error, try re-inserting and saving again");
+        }
+        ui->passwordEdit->setFocus();
+    }
+    else{
+        setStatus("Skipping empty password, writing addReturn and copyProtect flags...");
+        anykeySaveSettings();
+        runCommand("read_settings\n");
+        setStatus("Saved flags and read settings. (Skipped empty pass)");
+    }
+}
+
+void MainWindow::on_actionClose_triggered()
+{
+    QApplication::quit();
+    //This now calls the destructor which will stop anykey_crd etc.
+}
+
+
 
 bool MainWindow::checkLicense() {
     if(licenseRegistered){
@@ -73,14 +223,11 @@ bool MainWindow::checkLicense() {
 }
 
 void MainWindow::updateStatusSlot(){
-
     QString msg = QString("    ")+this->statusMessage;
-
     qDebug()<<" -> statusbar message: "<<msg<<endl;
 
     //ui->statusbar->showMessage( msg, 3 ); //also does not show our messag :(
     ui->statusbar->showMessage( msg, 3 ); //also does not show our messag :(
-
 }
 
 void MainWindow::setStatus(const QString& msg){
@@ -88,53 +235,6 @@ void MainWindow::setStatus(const QString& msg){
     statusBar()->showMessage(msg, 5000);
 }
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
-    licenseRegistered = false;
-    anykeycrd = new QProcess();
-
-    this->setMinimumWidth(425);
-    ui->setupUi(this);
-
-    // Set status and progress bar
-    // create objects for the label and progress bar
-    statusLabel = new QLabel(this);
-    //statusProgressBar = new QProgressBar(this);
-    // make progress bar text invisible
-    //statusProgressBar->setTextVisible(false);
-
-    // add the two controls to the status bar
-    ui->statusbar->addPermanentWidget(statusLabel,0);
-    //ui->statusbar->addPermanentWidget(statusProgressBar,1);
-
-
-    ui->titleLabel->setText("");
-    setStatus("Checking license...");
-
-    // read license file here!!!
-    if( !checkLicense() ){
-        ui->titleLabel->setText("Enter activation code");
-        ui->passwordEdit->setEchoMode(QLineEdit::Normal);
-        ui->showPassword->hide();
-        ui->generateButton->hide();
-        ui->advancedSettingsToggle->hide();
-        ui->copyProtectToggle->hide();
-        ui->generateLength->hide();
-        ui->addReturn->hide();
-        ui->saveButton->setText("Register");
-        setStatus("");
-        hideAdvancedItems();
-        ui->passwordEdit->setFocus();
-        ui->menubar->hide();
-    }
-    else{
-        showRegisteredControls();
-        //runCommand("read_settings\n"); //whenever anykey is inserted,read its settings
-    }
-
-}
 
 void MainWindow::readCRD(){
     QString output = anykeycrd->readAllStandardOutput();
@@ -353,7 +453,6 @@ void MainWindow::typePasswordAgain(){
 }
 
 void MainWindow::appFocusChanged(Qt::ApplicationState state){
-    //qDebug() << "Application state is now = "<< state;
     if( bPendingPasswordType ){
         //Inactive means lost focus, active means you bring back to front
         if(state == Qt::ApplicationState::ApplicationInactive){
@@ -362,10 +461,6 @@ void MainWindow::appFocusChanged(Qt::ApplicationState state){
         }
         bPendingPasswordType = false; //type once only
     }
-
-    //QObject::connect(qApp, &QGuiApplication::applicationStateChanged, this, [=](Qt::ApplicationState state){
-    //    qDebug() << "Application state is now = "<< state;
-    //});
 }
 
 // menu items on tray icon!
@@ -388,10 +483,8 @@ void MainWindow::createActions()
     //connect(maximizeAction, SIGNAL(triggered()), this, SLOT(showMaximized()));
 
     //for shortcuts to work we also add these to regular menu
-    //that way if window is hidden
-    //When typeaction is used, start typing pass after windw
-    //loses focus
-    bPendingPasswordType = false;
+    //that way if window is hidden we can still use shortcuts
+    
 
 #ifdef _WIN32
     typeAction = new QAction(tr("Type &Password"), this);
@@ -400,7 +493,12 @@ void MainWindow::createActions()
     typeAction = new QAction(tr("&Type Password"), this);
     typeAction->setShortcut(Qt::CTRL + Qt::Key_T);
 #endif
-	connect(typeAction, SIGNAL(triggered()),this,SLOT( typePasswordAgain() ));
+
+    //we use boolean to track a previous typePasswordAgain signal
+    bPendingPasswordType = false;
+    connect(typeAction, SIGNAL(triggered()),this,SLOT( typePasswordAgain() ));
+    
+    //Detect window focus loss to only type after losing focus with this:
     connect(qApp, SIGNAL(applicationStateChanged(Qt::ApplicationState )), this, SLOT(appFocusChanged(Qt::ApplicationState )));
 
     quitAction = new QAction(tr("&Quit"), this);
@@ -413,10 +511,6 @@ void MainWindow::createTrayIcon()
     trayIconMenu->addAction(restoreAction);
     trayIconMenu->addAction(minimizeAction);
     trayIconMenu->addAction(typeAction);
-
-    //first one doesn't work, second one only if dropdown is visible, shortcuts do however work in edit menu
-    //trayIconMenu->addAction(tr("&Type Password"),this,SLOT( typePasswordAgain()), QKeySequence(Qt::CTRL + Qt::Key_T ));
-
     //trayIconMenu->addAction(maximizeAction);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(quitAction);
@@ -436,12 +530,10 @@ void MainWindow::on_actionOpen_triggered()
    showConfigurator();
 }
 
-
 void MainWindow::on_actionHide_triggered()
 {
     hide();
 }
-
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
@@ -487,27 +579,17 @@ void MainWindow::showMessage(const QString& title, const QString& msg, int secon
 
 void MainWindow::setIcon(int)
 {
-    //QIcon icon = iconComboBox->itemIcon(index);
-    //trayIcon->setToolTip(iconComboBox->itemText(index));
-    //QIcon icon(":/images/heart.svg");
-
     QIcon icon( ":anykey_app_logo_256.png");
     trayIcon->setIcon(icon);
-    setWindowIcon(icon);
-
     trayIcon->setToolTip("AnyKey Configurator v2.0");
+
+    //also set the window icon to same 
+    setWindowIcon(icon);
 }
 
 
-MainWindow::~MainWindow()
-{
-    stopAnykeyCRD();
-    delete anykeycrd;
-    delete ui;
-}
 
 bool MainWindow::registerLicense( QString activation_code ){
-
         // create custom temporary event loop on stack
         QEventLoop eventLoop;
 
@@ -647,6 +729,11 @@ void MainWindow::runCommand( const QString& command ){
 }
 
 
+// read settings from anykey returns something like this
+// "version=2.5; kbd_conf=222; kbd_delay_start=255; kbd_delay_key=255; kbd_layout=255; bootlock=255; id=ffffff; device_mapped=1\n"
+// here we parse it and set the advanced setting controls etc.
+// in case device_mapped is 0 it means it has a salt (probably from other pc) and we allow
+// reading it if you know the password to link it on other pc.
 void MainWindow::anykeyParseSettings(const QString& response ){
     QString result = response;
     if(result.contains("ERROR: ")){
@@ -676,9 +763,6 @@ void MainWindow::anykeyParseSettings(const QString& response ){
     int bootlock = 255;
     int deviceInMapping = 1;
     QString deviceId="";
-
-    //qDebug() << result << endl;
-    //"version=2.5; kbd_conf=222; kbd_delay_start=255; kbd_delay_key=255; kbd_layout=255; bootlock=255; id=ffffff;\n"
 
     QStringList settings = result.split(";");
     for(int i=0;i<settings.size();i++){
@@ -751,6 +835,10 @@ void MainWindow::anykeyParseSettings(const QString& response ){
     setStatus("AnyKey ready");
 }
 
+
+// Save settings with write_flags: ...
+// used when you click save with empty pass
+// quickly modifies addReturn and copyProtect flags
 void MainWindow::anykeySaveSettings()
 {
     int activateCopyProtect=0;
@@ -773,6 +861,7 @@ void MainWindow::anykeySaveSettings()
     runCommand( write_flags );
 }
 
+// Save settings with write_settings: ...
 void MainWindow::anykeySaveAdvancedSettings()
 {
     setStatus("Saving configuration...");
@@ -792,15 +881,6 @@ void MainWindow::anykeySaveAdvancedSettings()
     int kbd_delay_key =   ui->keypressDelaySlider->value();
     int kbd_layout = ui->keyboardLayoutBox->currentIndex();
 
-    /*
-    QStringList arguments;
-    arguments << "-saveadvancedsettings";
-    arguments << QString::number(kbd_conf);
-    arguments << QString::number(kbd_delay_start);
-    arguments << QString::number(kbd_delay_key);
-    arguments << QString::number(kbd_layout);
-    */
-
     QString cmd = "write_settings:";
     cmd+= QString::number(kbd_conf)+" ";
     cmd+= QString::number(kbd_delay_start)+" ";
@@ -808,21 +888,20 @@ void MainWindow::anykeySaveAdvancedSettings()
     cmd+= QString::number(kbd_layout);
 
     runCommand( cmd + "\n");
-
-    // stopAnykeyCRD();
-    //qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 
 
 // this is later returned. and we'll auto add it to our devices.map upon success
-// in anykey_crd
+// in anykey_crd. Basically a read_salt command now not only returns
+// salt + devid but also updates the devices.map file so upon next C.R. it works
 void MainWindow::anykeyReadSalt(const QString& password )
 {
-    //QString result = anykeySave( QStringList() << "-readsalt" << password);
-    //return result;
     runCommand("read_salt:"+password+"\n");
 }
 
+
+//called after write_salt with response of device
+//show new device id and show secured in gui
 void MainWindow::parseWriteSaltResponse(const QString& result){
     //code is 3 bytes device_id+ 32 bytes as salt
     //QString result = anykeySave( QStringList() << "-salt" << code );
@@ -841,7 +920,7 @@ void MainWindow::parseWriteSaltResponse(const QString& result){
             setStatus("Salt saved your new device id="+devId);
             ui->copyProtectToggle->setEnabled(true);
             ui->deviceId->setText(devId);
-            ui->saltStatus->setText("secured");
+            ui->saltStatus->setText("Secured");
             setStatus("New salt saved");
         }
 
@@ -869,85 +948,6 @@ void MainWindow::on_updateSaltButton_clicked()
     }
 }
 
-
-
-void MainWindow::on_saveButton_clicked()
-{
-    if( !checkLicense() ){
-        setStatus("Registering activation code : "+ui->passwordEdit->text());
-        //QTimer::singleShot(200, this, SLOT(updateCaption())); -> todo...
-
-        bool licenseOk = MainWindow::registerLicense(ui->passwordEdit->text());
-
-        if (!licenseOk){
-            setStatus("Invalid activation code");
-            return;
-        }
-        else{ //activation ok!
-            if( checkLicense() ){
-                showRegisteredControls();
-                ui->titleLabel->setText("Insert your AnyKey then type a password and click on save:");
-                ui->passwordEdit->setEchoMode(QLineEdit::Password);
-                ui->saveButton->setText("Save");
-                setStatus("Registration successfull. AnyKeyConfigurator activated!");
-                ui->passwordEdit->setText("");
-                ui->copyProtectToggle->show();
-                ui->copyProtectToggle->setEnabled(false);
-                ui->copyProtectToggle->setChecked(false);
-                return;
-            }
-            else{
-                setStatus("Invalid license");
-                return;
-            }
-        }
-    }
-
-    QString password = ui->passwordEdit->text();
-
-    if( password.length() > 0 ){
-        setStatus("Saving password...");
-
-        QString output_str = anykeySavePassword( password );
-        if( output_str.contains("License check failed!") ){
-            /*QMessageBox::critical(this, tr("AnyKey"),
-                                                    tr("Invalid License!\n"
-                                                    "You need to activate this app using the activation code given."),
-                                                    QMessageBox::Ok );*/
-
-            setStatus("Invalid license or activation code!");
-        }
-        else if( output_str.contains("ERROR: could not find a connected") ){
-            QMessageBox::warning(this, tr("AnyKey"),
-                                                    tr("Could not find a connected AnyKey in any USB ports\n"
-                                                    "Please insert your AnyKey and try again."),
-                                                    QMessageBox::Ok );
-
-            setStatus("Save failed, AnyKey not found");
-            return;
-        }
-        else if( output_str.contains("ERROR:")){
-            setStatus(output_str + "try re-inserting and/or saving again");
-        }
-        else{
-            // if( output_str.contains("password saved")){
-            // patch, sometimes it's empty then most likely its also saved correctly
-            //setStatus("unknown error, try re-inserting and saving again");
-        }
-        ui->passwordEdit->setFocus();
-    }
-    else{
-        setStatus("Skipping empty password, writing addReturn and copyProtect flags...");
-        anykeySaveSettings();
-        runCommand("read_settings\n");
-        setStatus("Saved flags and read settings. (Skipped empty pass)");
-    }
-}
-
-void MainWindow::on_actionClose_triggered()
-{
-    QApplication::quit();
-}
 
 void MainWindow::on_actionAbout_triggered(){
 
@@ -1208,6 +1208,4 @@ void MainWindow::on_typeButton_clicked()
     ui->passwordEdit->selectAll();
     ui->passwordEdit->setFocus();
 }
-
-
 
