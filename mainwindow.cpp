@@ -130,7 +130,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     else{
         showRegisteredControls();
-        runCommand("read_settings\n"); //whenever anykey is inserted,read its settings
+        //runCommand("read_settings\n"); //whenever anykey is inserted,read its settings
     }
 
 }
@@ -164,6 +164,8 @@ void MainWindow::readCRD(){
                 anykeycrd->write("none\n");
             }
             line="";
+            ui->passwordEdit->selectAll();
+            ui->passwordEdit->setFocus();
         }
         else if(line.contains("cmd:")){
             if(commands_queue.length() > 0){
@@ -179,6 +181,7 @@ void MainWindow::readCRD(){
 
         if( line.contains("reset_response=Whiping eeprom (FF)eeprom cleared")){
             setStatus("AnyKey reset to factory settings. Remove and re-insert");
+            showMessage("Factory reset succeeded", "Please re-insert your AnyKey to reset and read new settings.");
             line="";
         }
 
@@ -197,6 +200,11 @@ void MainWindow::readCRD(){
             setStatus("Salt saved");
             line="";
         }
+        if(line.startsWith("salt=")){
+            setStatus("device linked again");
+            runCommand("read_settings\n");
+            line="";
+        }
 
         if( line.startsWith("config saved")){
             setStatus("Configuration saved");
@@ -204,12 +212,14 @@ void MainWindow::readCRD(){
         }
         if( line.startsWith("password saved")){
             setStatus("Password saved");
-            ui->passwordEdit->setText(""); //clear it again
+            ui->passwordEdit->selectAll(); //setText(""); //clear it again
+            ui->passwordEdit->setFocus();
             line="";
         }
         if( line.startsWith("flags saved")){
             setStatus("Flags saved");
-            ui->passwordEdit->setText(""); //clear it again
+            ui->passwordEdit->selectAll(); //select all allows delete when wanted
+            ui->passwordEdit->setFocus();
             line="";
         }
         if( line.contains("ERROR: Invalid CR")){
@@ -220,7 +230,6 @@ void MainWindow::readCRD(){
         if( line.contains("ERROR: password not saved")){
             showMessage("Save error", "Please re-insert your AnyKey and try again.");
             setStatus("ERROR during save. Please try again!");
-            //ERROR: password not saved correctly response='1T\r"
             line="";
         }
         if( line.startsWith("salt saved to device")){
@@ -230,6 +239,8 @@ void MainWindow::readCRD(){
 
         if(line.contains("id=")){ //"id=363739"
             setStatus("CP id received");
+            ui->passwordEdit->setFocus();
+            showMessage("AnyKey autotype","AnyKey protected challenge response...");
         }
         // " challenge=Cf87b2afc8057e90c6e8a684f52febd53da97ddd3a91ddc28b1b0b52d193024  [679] response=f7081b0635a0ef78ccf180c7e364079dc4cf4a29f6609503d46a37b3ae0250c4"
         if(line.contains("challenge =")){
@@ -252,8 +263,12 @@ void MainWindow::readCRD(){
             line="";
         }
 
+        if(line.startsWith("wrong password")){
+            setStatus("Read salt failed");
+            showMessage("Wrong password given for readsalt", "You need to give the original saved password in the password field. \nThen click on readsalt to recover or link a foreign device.");
+            line="";
+        }
     }
-
 }
 
 void MainWindow::startAnykeyCRD()
@@ -392,6 +407,7 @@ void MainWindow::createTrayIcon()
 void MainWindow::on_actionType_password_triggered()
 {
     typePasswordAgain();
+    ui->passwordEdit->setFocus();
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -637,6 +653,7 @@ void MainWindow::anykeyParseSettings(const QString& response ){
     int keyboard_layout = 0;
     int kbd_config = 0;
     int bootlock = 255;
+    int deviceInMapping = 1;
     QString deviceId="";
 
     //qDebug() << result << endl;
@@ -653,7 +670,7 @@ void MainWindow::anykeyParseSettings(const QString& response ){
         if( keyvalue.at(0).contains("kbd_layout") )      keyboard_layout = keyvalue.at(1).toInt();
         if( keyvalue.at(0).contains("bootlock")        ) bootlock = keyvalue.at(1).toInt();
         if( keyvalue.at(0).contains("id")              ) deviceId = keyvalue.at(1);
-
+        if( keyvalue.at(0).contains("device_mapped")   ) deviceInMapping = keyvalue.at(1).toInt();
     }
 
     // 0 -> belgian french azerty
@@ -688,13 +705,25 @@ void MainWindow::anykeyParseSettings(const QString& response ){
        ui->updateSaltButton->setEnabled(true);
        ui->updateSaltButton->setText("Generate Salt");
        ui->saltStatus->setText("Unprotected");
+       ui->daemonAutoType->setChecked(false);
+       ui->typeButton->setEnabled(false); //disable the CR typing until salt is set
     }
     else{
        ui->deviceId->setText(deviceId);
-       ui->copyProtectToggle->setEnabled(true);
-       ui->saltStatus->setText("secured");
-       ui->updateSaltButton->setEnabled(true);
-       ui->updateSaltButton->setText("Update Salt");
+       if(deviceInMapping == 1){
+           ui->typeButton->setEnabled(true);
+           ui->copyProtectToggle->setEnabled(true);
+           ui->saltStatus->setText("Secured");
+           ui->updateSaltButton->setEnabled(true);
+           ui->updateSaltButton->setText("Update Salt");
+       }
+       else{
+           ui->typeButton->setEnabled(false);
+           ui->copyProtectToggle->setEnabled(false);
+           ui->saltStatus->setText("Unknown");
+           ui->updateSaltButton->setEnabled(true);
+           ui->updateSaltButton->setText("Read Salt");
+       }
     }
 
     ui->firmwareVersion->setText(firmware_version);
@@ -800,17 +829,23 @@ void MainWindow::parseWriteSaltResponse(const QString& result){
 
 void MainWindow::anykeyUpdateSalt(const QString& code )
 {
-    //todo check if crd correctly re-reads devices.map here!
+    //todo: double check if crd correctly re-reads devices.map here!
     setStatus("Saving salt and device id...");
     runCommand("write_salt:"+code+"\n");
 }
 
 void MainWindow::on_updateSaltButton_clicked()
-{
-    //TODO: future work we keep same device id
-    // and only change salt. for now we re-generate everything
-    QString code = randomString(35); //3 for dev id, 32 for salt
-    anykeyUpdateSalt( code );
+{    
+    if( ui->updateSaltButton->text().contains("Read Salt")){
+        setStatus("Reading device salt using password...");
+        anykeyReadSalt(ui->passwordEdit->text());
+    }
+    else{ // update or generate salt
+        //TODO: future work we keep same device id
+        // and only change salt. for now we re-generate everything
+        QString code = randomString(35); //3 for dev id, 32 for salt
+        anykeyUpdateSalt( code );
+    }
 }
 
 
@@ -894,17 +929,6 @@ void MainWindow::on_actionClose_triggered()
 }
 
 void MainWindow::on_actionAbout_triggered(){
-
-    /*
-    QMessageBox::information(this,
-                            tr("AnyKeyConfigurator"),
-                            tr( "AnyKey is a product of AnyKey bvba.\n"
-                                "Patented in Belgium BE1019719 (A3).\n\n"
-                                "Version : 2.2 \n"
-                                "Author  : Walter Schreppers"),
-                             QMessageBox::Ok
-                             );
-    */
 
     // this works but with the main window minimized this now closes entire app
     QMessageBox mbox;
@@ -1071,6 +1095,8 @@ void MainWindow::on_advancedSettingsToggle_clicked(bool checked)
   else{//hide items
     hideAdvancedItems();
   }
+
+  ui->passwordEdit->setFocus();
 }
 
 void MainWindow::on_restoreDefaultsBtn_clicked()
@@ -1120,7 +1146,6 @@ void MainWindow::on_formatEepromButton_clicked()
     }
 
     setStatus("Formatting anykey eeprom...");
-    //stopAnykeyCRD();
     anykeyFactoryReset();
 
     qDebug()<<"TODO: Instead of closing, just set the settings as if it was default here without rereading!"<<endl;
@@ -1130,13 +1155,7 @@ void MainWindow::on_formatEepromButton_clicked()
     on_advancedSettingsToggle_clicked(false);
 
     //setStatus("done. Now take out re-insert your anykey!");
-
-    /*
-     * immediately re-reading freezes/crashses the device!
-     *  setStatus("Reading settings...");
-    runCommand("read_settings\n");
-    setStatus("Device reset, re-insert and save a new password...");
-    */
+    // runCommand("read_settings\n"); //avoid firmware crash after reset we need to eject first
 }
 
 void MainWindow::on_upgradeFirmwareButton_clicked()
@@ -1165,6 +1184,8 @@ void MainWindow::on_typeButton_clicked()
 {
     runCommand("type\n");
     setStatus("Sending challenge response to type password...");
+    ui->passwordEdit->selectAll();
+    ui->passwordEdit->setFocus();
 }
 
 
