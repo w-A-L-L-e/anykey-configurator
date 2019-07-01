@@ -53,6 +53,7 @@ Section "AnyKey configurator(required)"
   
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\AnyKey "Install_Dir" "$INSTDIR"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Run" "AnyKey Configurator" '"$INSTDIR\AnyKey.exe -minimized"' 
   
   ; Write the uninstall keys for Windows
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AnyKey" "DisplayName" "AnyKey configurator"
