@@ -29,8 +29,6 @@ private slots:
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
 
     bool checkLicense();
-    void updateStatusSlot();
-
     bool registerLicense( QString activation_code );
     QString anykeySave( const QStringList& arguments );
     QString anykeySavePassword( const QString& password );
@@ -87,6 +85,7 @@ private slots:
     void on_actionType_password_triggered();
     void on_actionOpen_triggered();
     void on_actionHide_triggered();
+    void toggleAutostart();
 
 private:
     Ui::MainWindow *ui;
@@ -102,6 +101,8 @@ private:
     QAction *restoreAction;
     QAction *typeAction;
     QAction *quitAction;
+    QAction *autostartAction;
+
     QProcess *anykeycrd;
     bool licenseRegistered; //cache once it's registered
 

@@ -13,9 +13,12 @@ bugreport(log):
 #include <fstream>
 #include <string>
 
-#include <unistd.h> // execvp()
 #include <stdio.h>  // perror()
 #include <stdlib.h> // EXIT_SUCCESS, EXIT_FAILURE
+
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 using namespace std;
 
@@ -28,6 +31,7 @@ exceptions  :
 algorithm   : trivial
 -----------------------------------------------------------------------------*/
 void LaunchAgent::init(){
+  plist_path = getHomeDir() + "/Library/LaunchAgents/org.anykey.configurator.plist";
 }
 
 
@@ -157,6 +161,40 @@ string LaunchAgent::autoStartPlist(){
 }
 
 
+
+string LaunchAgent::getHomeDir(){
+  const char *homedir;
+  if( (homedir = getenv("HOME")) == NULL ){
+    homedir = getpwuid(getuid())->pw_dir;
+  }
+
+  string home(homedir);
+  return home;
+}
+
+
+/*-----------------------------------------------------------------------------
+name        : is_installed
+description : Return true if install() was called already on this system.
+              do this by checkng installed config file
+parameters  : 
+return      : 
+exceptions  : 
+algorithm   : 
+-----------------------------------------------------------------------------*/
+bool LaunchAgent::is_installed(){
+  ifstream rp(plist_path.c_str());
+  if( rp.is_open() ){
+    rp.close();
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
+
+
 /*-----------------------------------------------------------------------------
 name        : install
 description : write to plist file and load it with launchctl. After doing
@@ -172,11 +210,18 @@ void LaunchAgent::install(){
 #ifdef __APPLE__
   //truncate any old content and write in local lib folder (like we see other apps do
   //examples are pulsesecure postgres agent etc.
-  ofstream lf("~/Library/LaunchAgents/org.anykey.configurator.plist", ofstream::trunc);
+  ofstream lf;
+  lf.open(plist_path.c_str(), ofstream::trunc);
+
+  if( !lf.is_open() ){
+    cerr << "Could not write to plist file!"<<endl;
+    return;
+  }
+
   lf << autoStartPlist() << endl;
   lf.close();
 
-  string res = runCommand("launchctl load ~/Library/LaunchAgents/org.anykey.configurator.plist"); 
+  string res = runCommand("launchctl load -w "+plist_path); 
 #else
   cerr << "Unsupported platform detected for launchctl. This is Mac OS only!"<<endl;
 #endif
@@ -195,10 +240,10 @@ algorithm   :
 -----------------------------------------------------------------------------*/
 void LaunchAgent::uninstall(){
 #ifdef __APPLE__
-  string res = runCommand("launchctl unload ~/Library/LaunchAgents/org.anykey.configurator.plist"); 
+  string res = runCommand("launchctl unload -w "+plist_path); 
 
   //remove the plist file
-  res = runCommand("rm -f ~/Library/LaunchAgents/org.anykey.configurator.plist");
+  res = runCommand("rm -f "+plist_path);
 #else
   cerr << "Unsupported platform detected for launchctl. This is Mac OS only!"<<endl;
 #endif

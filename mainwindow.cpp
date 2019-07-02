@@ -113,6 +113,10 @@ void MainWindow::on_saveButton_clicked()
                 ui->copyProtectToggle->show();
                 ui->copyProtectToggle->setEnabled(false);
                 ui->copyProtectToggle->setChecked(false);
+#ifdef __APPLE__
+                LaunchAgent anykeyAutostarter;
+                anykeyAutostarter.install();
+#endif
                 return;
             }
             else{
@@ -222,13 +226,6 @@ bool MainWindow::checkLicense() {
     return false;
 }
 
-void MainWindow::updateStatusSlot(){
-    QString msg = QString("    ")+this->statusMessage;
-    qDebug()<<" -> statusbar message: "<<msg<<endl;
-
-    //ui->statusbar->showMessage( msg, 3 ); //also does not show our messag :(
-    ui->statusbar->showMessage( msg, 3 ); //also does not show our messag :(
-}
 
 void MainWindow::setStatus(const QString& msg){
     qDebug()<<"status: "<<msg<<endl;
@@ -463,6 +460,24 @@ void MainWindow::appFocusChanged(Qt::ApplicationState state){
     }
 }
 
+void MainWindow::toggleAutostart(){
+  qDebug()<<"toggleAutostart..."<<flush;
+#ifdef __APPLE__
+  LaunchAgent anykeyLA;
+
+  if( anykeyLA.is_installed() ){
+    qDebug()<<"uninstalling..."<<endl;
+    anykeyLA.uninstall();
+    autostartAction->setText(tr("Enable autostart"));
+  }
+  else{
+    qDebug()<<"installing..."<<endl;
+    anykeyLA.install();
+    autostartAction->setText(tr("Disable autostart"));
+  }
+#endif
+}
+
 // menu items on tray icon!
 void MainWindow::createActions()
 {
@@ -504,7 +519,14 @@ void MainWindow::createActions()
     quitAction = new QAction(tr("&Quit"), this);
     quitAction->setShortcut(Qt::CTRL + Qt::Key_Q);
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+
+    LaunchAgent anykeyLA;
+    autostartAction = new QAction(tr("Disable Autostart"),this);
+    connect(autostartAction, SIGNAL(triggered()), this, SLOT( toggleAutostart() ));
+    if( !anykeyLA.is_installed() ) autostartAction->setText(tr("Enable Autostart"));
 }
+
+
 void MainWindow::createTrayIcon()
 {
     trayIconMenu = new QMenu(this);
@@ -512,7 +534,11 @@ void MainWindow::createTrayIcon()
     trayIconMenu->addAction(minimizeAction);
     trayIconMenu->addAction(typeAction);
     //trayIconMenu->addAction(maximizeAction);
+    
     trayIconMenu->addSeparator();
+#ifdef __APPLE__
+    trayIconMenu->addAction(autostartAction);
+#endif
     trayIconMenu->addAction(quitAction);
 
     trayIcon = new QSystemTrayIcon(this);

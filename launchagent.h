@@ -26,17 +26,22 @@ class LaunchAgent {
     //==============
     void install();
     void uninstall();
+    string getPath(){ return plist_path; }
+    bool is_installed();
 
   private:
     //private members:
     //================
     void init();
     string runCommand(const string& command);
+    string getHomeDir();
 
     //private locals:
     //===============
     string autoStartPlist();
     string autoRestartPlist();
+
+    string plist_path; //stores home_dir/plist_file_path
 
 }; //end of class LaunchAgent
 
