@@ -26,7 +26,6 @@ InstallDirRegKey HKLM "Software\AnyKey" "Install_Dir"
 RequestExecutionLevel admin
 
 ;--------------------------------
-
 ; Pages
 
 Page components
@@ -74,15 +73,22 @@ SectionEnd
 Section "Start Menu Shortcuts"
 
   ${If} ${RunningX64}
-  	; CreateDirectory "$SMPROGRAMS\AnyKey"
-    ; CreateShortcut "$SMPROGRAMS\AnyKey\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-    CreateShortcut "$SMPROGRAMS\AnyKey.lnk" "$INSTDIR\AnyKey.exe" "" "$INSTDIR\AnyKey.exe" 0
+  	CreateDirectory "$SMPROGRAMS\AnyKey"
+    CreateShortcut "$SMPROGRAMS\AnyKey\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+	CreateShortcut "$SMPROGRAMS\AnyKey\AnyKey Configurator.lnk" "$INSTDIR\AnyKey.exe" "" "$INSTDIR\AnyKey.exe" 0
+
+    CreateShortcut "$SMPROGRAMS\AnyKey Configurator.lnk" "$INSTDIR\AnyKey.exe" "" "$INSTDIR\AnyKey.exe" 0
   ${Else}   
 	CreateDirectory "$SMPROGRAMS\AnyKey"
     CreateShortcut "$SMPROGRAMS\AnyKey\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
     CreateShortcut "$SMPROGRAMS\AnyKey\AnyKey configurator.lnk" "$INSTDIR\AnyKey.exe" "" "$INSTDIR\AnyKey.exe" 0
   ${EndIf}
 SectionEnd
+
+Function .oninstsuccess   
+Exec "$INSTDIR\AnyKey.exe"   
+FunctionEnd
+
 
 ;--------------------------------
 

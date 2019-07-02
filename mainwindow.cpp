@@ -521,10 +521,12 @@ void MainWindow::createActions()
     quitAction->setShortcut(Qt::CTRL + Qt::Key_Q);
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
 
+#ifdef __APPLE__
     LaunchAgent anykeyLA;
     autostartAction = new QAction(tr("Disable Autostart"),this);
     connect(autostartAction, SIGNAL(triggered()), this, SLOT( toggleAutostart() ));
     if( !anykeyLA.is_installed() ) autostartAction->setText(tr("Enable Autostart"));
+#endif
 }
 
 
