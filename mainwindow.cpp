@@ -103,7 +103,7 @@ void MainWindow::on_saveButton_clicked()
             return;
         }
         else{ //activation ok!
-            if( checkLicense() ){
+            if( checkLicense() ){ //double check if license is now valid
                 showRegisteredControls();
                 ui->titleLabel->setText("Insert your AnyKey then type a password and click on save:");
                 ui->passwordEdit->setEchoMode(QLineEdit::Password);
@@ -114,6 +114,7 @@ void MainWindow::on_saveButton_clicked()
                 ui->copyProtectToggle->setEnabled(false);
                 ui->copyProtectToggle->setChecked(false);
 #ifdef __APPLE__
+                //make configurator auto start again upon reboot
                 LaunchAgent anykeyAutostarter;
                 anykeyAutostarter.install();
 #endif
@@ -321,8 +322,8 @@ void MainWindow::readCRD(){
             line="";
         }
         if( line.contains("ERROR: Invalid CR")){
-            showMessage("Invalid Challenge Response",
-                        "Please re-insert your AnyKey and try again. Or configure your salt.");
+            showMessage("Invalid Challenge Response Secret",
+                        "Please re-insert your AnyKey and try again. Or configure your Secret in advanced settings.");
             line="";
         }
         if( line.contains("ERROR: password not saved")){
@@ -362,8 +363,8 @@ void MainWindow::readCRD(){
         }
 
         if(line.startsWith("wrong password")){
-            setStatus("Read salt failed");
-            showMessage("Wrong password given for readsalt", "You need to give the original saved password in the password field. \nThen click on readsalt to recover or link a foreign device.");
+            setStatus("Read secret failed");
+            showMessage("Wrong password given for Read Secret", "You need to give the original saved password in the password field. \nThen click on Read Secret.");
             line="";
         }
     }
@@ -834,7 +835,7 @@ void MainWindow::anykeyParseSettings(const QString& response ){
        ui->copyProtectToggle->setEnabled(false);
        ui->copyProtectToggle->setChecked(false); //make it type password on next save without cr!
        ui->updateSaltButton->setEnabled(true);
-       ui->updateSaltButton->setText("Generate Salt");
+       ui->updateSaltButton->setText("Create Secret");
        ui->saltStatus->setText("Unprotected");
        ui->daemonAutoType->setChecked(false);
        ui->typeButton->setEnabled(false); //disable the CR typing until salt is set
@@ -846,14 +847,14 @@ void MainWindow::anykeyParseSettings(const QString& response ){
            ui->copyProtectToggle->setEnabled(true);
            ui->saltStatus->setText("Secured");
            ui->updateSaltButton->setEnabled(true);
-           ui->updateSaltButton->setText("Update Salt");
+           ui->updateSaltButton->setText("Change Secret");
        }
        else{
            ui->typeButton->setEnabled(false);
            ui->copyProtectToggle->setEnabled(false);
            ui->saltStatus->setText("Unknown");
            ui->updateSaltButton->setEnabled(true);
-           ui->updateSaltButton->setText("Read Salt");
+           ui->updateSaltButton->setText("Read Secret");
        }
     }
 
@@ -937,7 +938,7 @@ void MainWindow::parseWriteSaltResponse(const QString& result){
                                                 result,
                                                 QMessageBox::Ok );
 
-        setStatus("Saving salt failed.");
+        setStatus("Saving new secret failed.");
         return;
     }
     else{
@@ -947,7 +948,8 @@ void MainWindow::parseWriteSaltResponse(const QString& result){
             ui->copyProtectToggle->setEnabled(true);
             ui->deviceId->setText(devId);
             ui->saltStatus->setText("Secured");
-            setStatus("New salt saved");
+            setStatus("New secret saved");
+            runCommand("read_settings\n");
         }
 
     }
@@ -955,14 +957,14 @@ void MainWindow::parseWriteSaltResponse(const QString& result){
 
 void MainWindow::anykeyUpdateSalt(const QString& code )
 {
-    //todo: double check if crd correctly re-reads devices.map here!
     setStatus("Saving salt and device id...");
     runCommand("write_salt:"+code+"\n");
+    runCommand("read_settings\n");
 }
 
 void MainWindow::on_updateSaltButton_clicked()
 {    
-    if( ui->updateSaltButton->text().contains("Read Salt")){
+    if( ui->updateSaltButton->text().contains("Read Secret")){
         setStatus("Reading device salt using password...");
         anykeyReadSalt(ui->passwordEdit->text());
     }
@@ -1117,8 +1119,12 @@ void MainWindow::on_advancedSettingsToggle_clicked(bool checked)
     //ui->daemonAutostartCheck->show();
     ui->daemonAutoType->show();
     ui->daemonAutoType->setEnabled(true);
-    ui->daemonAutoLock->show();
-    ui->daemonAutoLock->setEnabled(true);
+
+    //this is for a next release (as we still have bugs here)
+    //ui->daemonAutoLock->show();
+    //ui->daemonAutoLock->setEnabled(true);
+    ui->daemonAutoLock->hide();
+
     ui->daemonRestartButton->show();
     ui->typeButton->show();
 
@@ -1195,14 +1201,13 @@ void MainWindow::on_formatEepromButton_clicked()
     setStatus("Formatting anykey eeprom...");
     anykeyFactoryReset();
 
-    qDebug()<<"TODO: Instead of closing, just set the settings as if it was default here without rereading!"<<endl;
-
     //close advanced settings
     ui->advancedSettingsToggle->setChecked(false);
     on_advancedSettingsToggle_clicked(false);
 
-    //setStatus("done. Now take out re-insert your anykey!");
-    // runCommand("read_settings\n"); //avoid firmware crash after reset we need to eject first
+    //after device reset copy protect is by default disabled.
+    ui->copyProtectToggle->setEnabled(false);
+
 }
 
 void MainWindow::on_upgradeFirmwareButton_clicked()

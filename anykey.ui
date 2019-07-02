@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>561</width>
+    <width>614</width>
     <height>449</height>
    </rect>
   </property>
@@ -110,7 +110,7 @@
       <item row="5" column="0">
        <widget class="QLabel" name="daemonLabel">
         <property name="text">
-         <string>C.R. Daemon SHA</string>
+         <string>Chall. Resp. Daemon</string>
         </property>
        </widget>
       </item>
@@ -310,7 +310,7 @@
       <item row="4" column="3">
        <widget class="QCheckBox" name="copyProtectToggle">
         <property name="text">
-         <string>Copy protect</string>
+         <string>Copy Protect</string>
         </property>
        </widget>
       </item>
@@ -351,19 +351,6 @@
        <widget class="QSlider" name="keypressDelaySlider">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="2">
-       <widget class="QCheckBox" name="daemonAutoType">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Auto type</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -425,7 +412,7 @@
       <item row="6" column="3">
        <widget class="QPushButton" name="updateSaltButton">
         <property name="text">
-         <string>Generat Salt</string>
+         <string>Create Secret</string>
         </property>
        </widget>
       </item>
@@ -506,20 +493,33 @@
         </property>
        </widget>
       </item>
+      <item row="6" column="4">
+       <widget class="QPushButton" name="typeButton">
+        <property name="text">
+         <string>C.P. Type</string>
+        </property>
+       </widget>
+      </item>
       <item row="5" column="3">
+       <widget class="QCheckBox" name="daemonAutoType">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Auto type</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
        <widget class="QCheckBox" name="daemonAutoLock">
         <property name="enabled">
          <bool>false</bool>
         </property>
         <property name="text">
          <string>Auto logout</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="4">
-       <widget class="QPushButton" name="typeButton">
-        <property name="text">
-         <string>C.R. Type</string>
         </property>
        </widget>
       </item>
@@ -532,8 +532,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>561</width>
-     <height>21</height>
+     <width>614</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuAnyKey">
