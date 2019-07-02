@@ -53,7 +53,10 @@ private slots:
     void anykeyUpdateSalt(const QString& code );
 
 
+    void readGuiControls();
+    void writeGuiControls();
     void on_saveButton_clicked();
+
     void on_actionClose_triggered();
     void on_actionAbout_triggered();
 

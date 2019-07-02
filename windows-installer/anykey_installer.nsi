@@ -6,7 +6,7 @@
 
 ; The name of the installer
 Name "AnyKey"
-BrandingText "AnyKey Configurator v2.0.0"
+BrandingText "AnyKey Configurator v2.3.0"
 
 ; The file to write
 OutFile "AnyKey Installer.exe"
@@ -112,6 +112,7 @@ Section "Uninstall"
 
   ; Remove shortcuts, if any
   Delete "$SMPROGRAMS\AnyKey\*.*"
+  Delete "$SMPROGRAMS\AnyKey Configurator.lnk"
 
   ; Remove directories used
   RMDir "$SMPROGRAMS\AnyKey"

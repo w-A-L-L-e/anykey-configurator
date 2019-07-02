@@ -25,6 +25,7 @@ using namespace std;
 //exe name of anykey_save
 #define ANYKEY_SAVE "anykey_save"
 #define ANYKEY_TYPE_DAEMON "anykey_crd"
+#define CONFIGURATOR_VERSION "2.3.0"
 
 //constructor checks license and shows
 //alternate gui if license check fails to register.
@@ -63,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->copyProtectToggle->hide();
         ui->generateLength->hide();
         ui->addReturn->hide();
+        ui->daemonAutoType->hide();
         ui->saveButton->setText("Register");
         setStatus("");
         hideAdvancedItems();
@@ -85,6 +87,78 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+
+void MainWindow::writeGuiControls(){
+    QString home_path = QCoreApplication::applicationDirPath();
+    QString fileName(home_path+"/anykey.cfg");
+    QFile config_file(fileName);
+    if( !config_file.open(QIODevice::WriteOnly) )
+     {
+       QString msg = QString( tr("Unable to save configuration to file: %1") ).arg(fileName);
+       QMessageBox::critical(this, tr("AnyKey could not save configuration"), msg, QMessageBox::Ok );
+       return;
+     }
+
+    QString controls="";
+    controls+= "add_return="+QString::number(ui->addReturn->isChecked())+";";
+    controls+= "copy_protect="+QString::number(ui->copyProtectToggle->isChecked())+";";
+    controls+= "auto_type="+QString::number(ui->daemonAutoType->isChecked())+";";
+    controls+= "advanced_settings="+QString::number(ui->advancedSettingsToggle->isChecked())+";";
+
+    QTextStream outputStream(&config_file);
+    outputStream << controls <<endl;
+
+    config_file.close();
+
+    qDebug() << "Write anykey.cfg success" <<endl;
+}
+
+void MainWindow::readGuiControls(){
+    QString home_path = QCoreApplication::applicationDirPath();
+    QString fileName(home_path+"/anykey.cfg");
+    QFile config_file(fileName);
+    if( config_file.open(QIODevice::ReadOnly) ){
+
+        QString result = config_file.readAll();
+        QStringList settings = result.split(";");
+        int add_return=0, copy_protect=0, auto_type=0, advanced_settings=0;
+
+        for(int i=0;i<settings.size();i++){
+            QString kv = settings.at(i).toLocal8Bit();
+            QStringList keyvalue = kv.split("=");
+            if( keyvalue.at(0).contains("add_return")  ) add_return   = keyvalue.at(1).toInt();
+            if( keyvalue.at(0).contains("copy_protect")) copy_protect = keyvalue.at(1).toInt();
+            if( keyvalue.at(0).contains("auto_type")   ) auto_type    = keyvalue.at(1).toInt();
+
+            //for now always retusrn advanced settings as closed.
+            // this because it triggers a read settings when inserted an anykey without copyprotect
+            // it sometimes fails (reading setting during typing...)
+            //if( keyvalue.at(0).contains("advanced_settings")) advanced_settings = keyvalue.at(1).toInt();
+        }
+
+        config_file.close();
+
+        qDebug() << "Read anykey.cfg success"
+                 << " add_return="   << add_return
+                 << " copy_protect=" << copy_protect
+                 << " auto_type="    << auto_type << endl;
+
+        if(add_return>0) ui->addReturn->setChecked(true);
+        else ui->addReturn->setChecked(false);
+
+        if(copy_protect>0) ui->copyProtectToggle->setChecked(true);
+        else ui->copyProtectToggle->setChecked(false);
+
+        if(auto_type>0) ui->daemonAutoType->setChecked(true);
+        else ui->daemonAutoType->setChecked(false);
+
+        if(advanced_settings>0) ui->advancedSettingsToggle->setChecked(true);
+        else ui->advancedSettingsToggle->setChecked(false);
+    }
+    else{
+        qDebug() << "config file not found" <<endl;
+    }
+}
 
 // This has double functionality before registration
 // the save button is the 'register' button.
@@ -113,6 +187,7 @@ void MainWindow::on_saveButton_clicked()
                 ui->copyProtectToggle->show();
                 ui->copyProtectToggle->setEnabled(false);
                 ui->copyProtectToggle->setChecked(false);
+                ui->daemonAutoType->show();
 #ifdef __APPLE__
                 //make configurator auto start again upon reboot
                 LaunchAgent anykeyAutostarter;
@@ -165,8 +240,10 @@ void MainWindow::on_saveButton_clicked()
         setStatus("Skipping empty password, writing addReturn and copyProtect flags...");
         anykeySaveSettings();
         runCommand("read_settings\n");
-        setStatus("Saved flags and read settings. (Skipped empty pass)");
+        //setStatus("Saved flags and read settings. (Skipped empty pass)");
     }
+
+    writeGuiControls(); //possibly later version do this after each confirm...
 }
 
 void MainWindow::on_actionClose_triggered()
@@ -400,17 +477,20 @@ void MainWindow::showRegisteredControls(){
     ui->addReturn->show();
     ui->advancedSettingsToggle->show();
     ui->menubar->show();
-#ifdef _WIN32
-    //todo change actionOpen text
-    //QAction* openAction = menuBar()->findChild<QMenu*>("menuAnyKey")->findChild<QAction*>("actionOpen");
-    //openAction->setShortcut(Qt::CTRL + Qt::Key_O);
-#else
-    // on mac it should be qt::ctrl+qt::key_comma ...
-#endif
+    ui->copyProtectToggle->show();
+    ui->daemonAutoType->show();
 
-    hideAdvancedItems();
+    readGuiControls();
+
+    if(! ui->advancedSettingsToggle->isChecked()){
+        hideAdvancedItems();
+    }
+    else{
+        this->on_advancedSettingsToggle_clicked(true);
+    }
 
     ui->copyProtectToggle->setDisabled(true);
+    ui->daemonAutoType->show();
 
     ui->saveButton->setText("Save");
     ui->generateLength->setValue(20);
@@ -610,7 +690,7 @@ void MainWindow::setIcon(int)
 {
     QIcon icon( ":anykey_app_logo_256.png");
     trayIcon->setIcon(icon);
-    trayIcon->setToolTip("AnyKey Configurator v2.0");
+    trayIcon->setToolTip("AnyKey Configurator v2.3.0");
 
     //also set the window icon to same 
     setWindowIcon(icon);
@@ -661,7 +741,6 @@ bool MainWindow::registerLicense( QString activation_code ){
             outputStream << license_content;
 
             license_file.close();
-
             delete reply;
 
             //all a-ok return true!!!
@@ -716,7 +795,7 @@ QString MainWindow::anykeySave( const QStringList& arguments )
 QString MainWindow::anykeySavePassword(const QString& password)
 {
     setStatus("Saving password...");
-    QString result="password_saved"; //TODO better errorhandling here!
+    QString result="password_saved";
 
     if(ui->addReturn->isChecked()){
         if(ui->copyProtectToggle->isChecked()){
@@ -862,6 +941,7 @@ void MainWindow::anykeyParseSettings(const QString& response ){
 
     ui->firmwareVersion->setText(firmware_version);
     setStatus("AnyKey ready");
+    //writeGuiControls(); //store read settings also on disk
 }
 
 
@@ -888,6 +968,8 @@ void MainWindow::anykeySaveSettings()
 
     qDebug()<<"runCommand="<<write_flags<<endl;
     runCommand( write_flags );
+
+    readGuiControls(); //store flags to disk also
 }
 
 // Save settings with write_settings: ...
@@ -980,14 +1062,22 @@ void MainWindow::on_updateSaltButton_clicked()
 
 
 void MainWindow::on_actionAbout_triggered(){
+    /*QString home_path = QCoreApplication::applicationDirPath();
+    QString license_path(home_path+"/license.json");
+    QString license="license: ";
+    QFile lf(license_path);
+    if( lf.open(QIODevice::ReadOnly) ){
+        license += lf.readAll();
+        lf.close();
+    }*/
 
     // this works but with the main window minimized this now closes entire app
     QMessageBox mbox;
     mbox.setText( tr("AnyKey Configurator\n"
                      "AnyKey is a product of AnyKey bvba.\n"
                      "Patented in Belgium BE1019719 (A3).\n\n"
-                     "Version : 2.2 \n"
-                     "Author  : Walter Schreppers"));
+                     "Version : 2.3.0 \n"
+                     "Author  : Walter Schreppers\n") );
     mbox.exec();
 
     //TODO fix this by setting qapp closeevents to something else...
@@ -1070,7 +1160,7 @@ void MainWindow::hideAdvancedItems(){
   ui->daemonLabel->hide();
   ui->daemonStatusLabel->hide();
   //ui->daemonAutostartCheck->hide();
-  ui->daemonAutoType->hide();
+  //ui->daemonAutoType->hide(); //this is now in regular settings
   ui->daemonAutoLock->hide();
   ui->daemonRestartButton->hide();
   ui->typeButton->hide();
