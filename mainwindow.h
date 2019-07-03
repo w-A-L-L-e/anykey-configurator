@@ -110,6 +110,7 @@ private:
 
     QProcess *anykeycrd;
     bool licenseRegistered; //cache once it's registered
+	bool trayIconActivated;
 
     // add references to Label and ProgressBar
     QLabel *statusLabel;

@@ -9,7 +9,12 @@
 #include <iostream>
 using namespace std;
 
-
+// The sharedmemory ipc stuff is a bit messy, we might refactor this into a seperate class later on
+// for now it works really well so we're keeping it in. It basically only allows one configurator to
+// be started and also signals a running configurator to pop to front when this one exits (after detecting
+// it's not the first one started)
+// This is tightly coupled with mainwindow method checkShowWindow. And basically moving common code into
+// a seperate class like we did on mac for launchctl would be nicer here...
 int main(int argc, char *argv[])
 {
     // make windows with retina or 4k still look good
@@ -61,7 +66,6 @@ int main(int argc, char *argv[])
       cout << "The application was already started before. Exiting and bringing other instance to front... " << endl;
       return 1;
     }
-
 
     MainWindow w;
     w.show();

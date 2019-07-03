@@ -3,7 +3,12 @@ set PATH=C:\WinAVR-20100110\bin;C:\WinAVR-20100110\utils\bin;C:\Program Files (x
 
 echo "make clean, and run qmake"
 qmake AnyKey.pro_windows
-make clean
+make -f Makefile.release clean
 
 echo "compile again with make"
 make -f Makefile.release
+
+echo "compressing exe for distribution..."
+windows-installer\upx.exe release\AnyKey.exe
+
+echo "release\AnyKey.exe built successfull"
