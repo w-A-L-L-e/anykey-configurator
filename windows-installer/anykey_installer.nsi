@@ -108,6 +108,9 @@ Section "Uninstall"
   Delete $INSTDIR\AnyKey.exe
   Delete $INSTDIR\anykey_save.exe
   Delete $INSTDIR\anykey_crd.exe
+  Delete $INSTDIR\license.json
+  Delete $INSTDIR\anykey.cfg
+  Delete $INSTDIR\devices.map
   Delete $INSTDIR\uninstall.exe
 
   ; Remove shortcuts, if any
