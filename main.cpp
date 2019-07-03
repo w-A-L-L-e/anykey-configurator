@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
                                 // To an existing segment
         is_running = true;      // If successful, it determines that there is already a running instance
 
-        //put an S for show
+        //put an S for show -> this will be detected by the other running configurator!
         sharedMemory.lock();
         char* data = (char*)sharedMemory.data();
         data[0]='S'; //show window on other instance
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
         sharedMemory.create(1); // Otherwise allocate 1 byte of memory
         is_running = false;     // And determines that another instance is not running
 
-        //put an ' ' to signal nothing
+        //put an ' ' to signal nothing to itself upon startup
         sharedMemory.lock();
         char* data = (char*)sharedMemory.data();
         data[0]=' '; //have empty byte ready for other app
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     // If you already run one instance of the application, then we inform the user about it
     // and complete the current instance of the application
     if(is_running){
-      cout << "The application is already running. Exiting this instance." << endl;;
+      cout << "The application was already started before. Exiting and bringing other instance to front... " << endl;
       return 1;
     }
 
