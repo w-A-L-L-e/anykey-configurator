@@ -649,8 +649,8 @@ void MainWindow::createActions(){
     //connect(maximizeAction, SIGNAL(triggered()), this, SLOT(showMaximized()));
 
 #ifdef _WIN32
-    typeAction = new QAction(tr("Type &Password"), this);
-    typeAction->setShortcut(Qt::CTRL + Qt::Key_P);
+    typeAction = new QAction(tr("&Type Password"), this);
+    typeAction->setShortcut(Qt::CTRL + Qt::Key_T);
 #else
     typeAction = new QAction(tr("&Type Password"), this);
     typeAction->setShortcut(Qt::CTRL + Qt::Key_T);
@@ -680,7 +680,11 @@ void MainWindow::createTrayIcon(){
     trayIconMenu = new QMenu(this);
     trayIconMenu->addAction(restoreAction);
     trayIconMenu->addAction(minimizeAction);
+#ifdef __APPLE__
+    //in windows type action only works with the window opened and then alt-tab to new window
+    //on apple/macos we can do it with a minimized window
     trayIconMenu->addAction(typeAction);
+#endif
     //trayIconMenu->addAction(maximizeAction);
     
     trayIconMenu->addSeparator();
@@ -691,6 +695,9 @@ void MainWindow::createTrayIcon(){
 
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayIconMenu);
+
+    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+                this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
 }
 
 
@@ -723,11 +730,15 @@ void MainWindow::closeEvent(QCloseEvent* event){
 void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason){
     switch (reason) {
         case QSystemTrayIcon::Trigger:
-            //this->restoreAction->toggle();
+            //qDebug()<<"Trayicon trigger"<<endl;
+#ifdef _WIN32
+            //on mac single click opens menu. windows: right click
+            showConfigurator();
+#endif
             break;
         case QSystemTrayIcon::DoubleClick:
-            //hide();
-            //iconComboBox->setCurrentIndex((iconComboBox->currentIndex() + 1)% iconComboBox->count());
+            //for windows double clicker people and also mac people a nice shortcut ;)
+            showConfigurator();
             break;
         case QSystemTrayIcon::MiddleClick:
 
