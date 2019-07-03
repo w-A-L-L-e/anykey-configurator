@@ -7,8 +7,3 @@ make -f Makefile.release clean
 
 echo "compile again with make"
 make -f Makefile.release
-
-echo "compressing exe for distribution..."
-windows-installer\upx.exe release\AnyKey.exe
-
-echo "release\AnyKey.exe built successfull"
