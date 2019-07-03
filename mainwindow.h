@@ -7,6 +7,7 @@
 #include <QProcess>
 #include <QProgressBar>
 #include <QLabel>
+#include <QTimer>
 
 namespace Ui {
 class MainWindow;
@@ -35,6 +36,7 @@ private slots:
 
     void showConfigurator();
 
+    void checkShowWindow();
     void readCRD();
     void startAnykeyCRD();
     void stopAnykeyCRD();
@@ -115,6 +117,8 @@ private:
     QString statusMessage;
     QStringList commands_queue;
     bool bPendingPasswordType;
+
+    QTimer *windowTimer;
 };
 
 #endif // MAINWINDOW_H

@@ -16,6 +16,10 @@
 #include <QUrlQuery>
 #include <QTimer>
 
+//used with checkShowWindow but
+#include <QSharedMemory>
+#include <QSystemSemaphore>
+
 #ifdef __APPLE__
 #include "launchagent.h"
 #endif
@@ -74,6 +78,11 @@ MainWindow::MainWindow(QWidget *parent) :
     else{
         showRegisteredControls();
         //runCommand("read_settings\n"); //whenever anykey is inserted,read its settings
+
+        //brings window to front if a start of app is required.
+        windowTimer = new QTimer(this);
+        connect(windowTimer, SIGNAL(timeout()), this, SLOT(checkShowWindow()));
+        windowTimer->start(800);
     }
 
 }
@@ -85,6 +94,7 @@ MainWindow::~MainWindow()
     stopAnykeyCRD();
     delete anykeycrd;
     delete ui;
+    delete windowTimer;
 }
 
 
@@ -192,6 +202,9 @@ void MainWindow::on_saveButton_clicked()
                 //make configurator auto start again upon reboot
                 LaunchAgent anykeyAutostarter;
                 anykeyAutostarter.install();
+                if(anykeyAutostarter.is_installed()){
+                    autostartAction->setText(tr("Disable Autostart"));
+                }
 #endif
                 return;
             }
@@ -311,7 +324,39 @@ void MainWindow::setStatus(const QString& msg){
 }
 
 
-void MainWindow::readCRD(){
+//if another app is started it detects this one is running and closes
+//however we do want to bring this one to front (that way only one configurator stays running)
+//and it shows it back to front when you execute another.
+//this is done with a timer!
+void MainWindow::checkShowWindow(){
+    //qDebug()<<"C"<<flush;
+    bool showWindow = false;
+    QSharedMemory sharedMemory("AnyKey Configurator Shared");
+    if(!sharedMemory.attach()){
+        return;
+    }
+
+    sharedMemory.lock();
+    const char* data = (const char*)sharedMemory.constData();
+    if( sharedMemory.size()>0){
+        if( data[0] == 'S' ){ //this means a second anykey configurator started and was killed
+            showWindow = true;
+            //set it back to ' ' so that next reads don't start showing window again
+            char* wdata = (char*)sharedMemory.data();
+            wdata[0]=' ';
+        }
+    }
+    sharedMemory.unlock();
+
+    if(showWindow){
+        qDebug()<<"Bringing configurator to front, someone tried starting a new instance."<<endl;
+        showConfigurator();
+    }
+}
+
+
+
+void MainWindow::readCRD(){    
     QString output = anykeycrd->readAllStandardOutput();
     QStringList lines = output.split("\n");
 
@@ -603,7 +648,7 @@ void MainWindow::createActions()
 
 #ifdef __APPLE__
     LaunchAgent anykeyLA;
-    autostartAction = new QAction(tr("Disable Autostart"),this);
+    autostartAction = new QAction(tr("Disable autostart"),this);
     connect(autostartAction, SIGNAL(triggered()), this, SLOT( toggleAutostart() ));
     if( !anykeyLA.is_installed() ) autostartAction->setText(tr("Enable Autostart"));
 #endif

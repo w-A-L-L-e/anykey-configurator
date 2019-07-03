@@ -35,9 +35,22 @@ int main(int argc, char *argv[])
     if (sharedMemory.attach()){ // We are trying to attach a copy of the shared memory
                                 // To an existing segment
         is_running = true;      // If successful, it determines that there is already a running instance
+
+        //put an S for show
+        sharedMemory.lock();
+        char* data = (char*)sharedMemory.data();
+        data[0]='S'; //show window on other instance
+        sharedMemory.unlock();
+
     }else{
         sharedMemory.create(1); // Otherwise allocate 1 byte of memory
         is_running = false;     // And determines that another instance is not running
+
+        //put an ' ' to signal nothing
+        sharedMemory.lock();
+        char* data = (char*)sharedMemory.data();
+        data[0]=' '; //have empty byte ready for other app
+        sharedMemory.unlock();
     }
     semaphore.release();
 
