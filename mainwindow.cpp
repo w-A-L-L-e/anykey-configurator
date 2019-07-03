@@ -415,7 +415,8 @@ void MainWindow::readCRD(){
         if( line.contains("settings=") ){
             if(!line.contains("kbd_conf=")){
                 setStatus("ERROR: could not read settings.");
-                showMessage("Read settings failed","Try toggling advanced settings to re-read if that does not work, re-insert your AnyKey and try again.");
+                showMessage("Read settings failed",
+                            "Try toggling advanced settings to re-read or re-insert your AnyKey and try again.");
             }
             else{
                 anykeyParseSettings(line);
@@ -496,7 +497,8 @@ void MainWindow::readCRD(){
 
         if(line.startsWith("wrong password")){
             setStatus("Read secret failed");
-            showMessage("Wrong password given for Read Secret", "You need to give the original saved password in the password field. \nThen click on Read Secret.");
+            showMessage("Wrong password given for Read Secret",
+                        "You need to give the original saved password in the password field.\nThen click on Read Secret.");
             line="";
         }
     }
