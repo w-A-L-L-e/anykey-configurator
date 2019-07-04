@@ -33,7 +33,8 @@ using namespace std;
 
 // constructor checks license and shows
 // alternate gui if license check fails to register.
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+{
     licenseRegistered = false;
     trayIconActivated = false;
     anykeycrd = new QProcess();
@@ -73,7 +74,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         hideAdvancedItems();
         ui->passwordEdit->setFocus();
         ui->menubar->hide();
-    } else {
+    }
+    else {
         showRegisteredControls();
         // brings window to front if a start of app is required.
         // it does this by periodically checking ipc/sharedMemory
@@ -84,7 +86,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 }
 
 // destructor stops the anykey_crd daemon also now.
-MainWindow::~MainWindow() {
+MainWindow::~MainWindow()
+{
     stopAnykeyCRD();
     if (trayIconActivated) {
         delete windowTimer;
@@ -107,7 +110,8 @@ MainWindow::~MainWindow() {
 }
 
 // keep users settings in config file on disk so they persist after reboot.
-void MainWindow::writeGuiControls() {
+void MainWindow::writeGuiControls()
+{
     QString home_path = QCoreApplication::applicationDirPath();
     QString fileName(home_path + "/anykey.cfg");
     QFile config_file(fileName);
@@ -131,7 +135,8 @@ void MainWindow::writeGuiControls() {
     qDebug() << "Write anykey.cfg success" << endl;
 }
 
-void MainWindow::readGuiControls() {
+void MainWindow::readGuiControls()
+{
     QString home_path = QCoreApplication::applicationDirPath();
     QString fileName(home_path + "/anykey.cfg");
     QFile config_file(fileName);
@@ -178,7 +183,8 @@ void MainWindow::readGuiControls() {
             ui->advancedSettingsToggle->setChecked(true);
         else
             ui->advancedSettingsToggle->setChecked(false);
-    } else {
+    }
+    else {
         qDebug() << "config file not found" << endl;
     }
 }
@@ -187,7 +193,8 @@ void MainWindow::readGuiControls() {
 // the save button is the 'register' button.
 // afterwards if licens check ok then we use it to save the
 // new passwords. Again we might refactor in future. for now it just works
-void MainWindow::on_saveButton_clicked() {
+void MainWindow::on_saveButton_clicked()
+{
     if (!checkLicense()) {
         setStatus("Registering activation code : " + ui->passwordEdit->text());
         bool licenseOk = MainWindow::registerLicense(ui->passwordEdit->text());
@@ -195,7 +202,8 @@ void MainWindow::on_saveButton_clicked() {
         if (!licenseOk) {
             setStatus("Invalid activation code");
             return;
-        } else {                  // activation ok!
+        }
+        else {                    // activation ok!
             if (checkLicense()) { // double check if license is now valid
                 showRegisteredControls();
                 ui->titleLabel->setText("Insert your AnyKey then type a password and click on save:");
@@ -216,7 +224,8 @@ void MainWindow::on_saveButton_clicked() {
                 }
 #endif
                 return;
-            } else {
+            }
+            else {
                 setStatus("Invalid license");
                 return;
             }
@@ -236,7 +245,8 @@ void MainWindow::on_saveButton_clicked() {
                                                     QMessageBox::Ok );*/
 
             setStatus("Invalid license or activation code!");
-        } else if (output_str.contains("ERROR: could not find a connected")) {
+        }
+        else if (output_str.contains("ERROR: could not find a connected")) {
             QMessageBox::warning(this, tr("AnyKey"),
                                  tr("Could not find a connected AnyKey in any USB ports\n"
                                     "Please insert your AnyKey and try again."),
@@ -244,16 +254,19 @@ void MainWindow::on_saveButton_clicked() {
 
             setStatus("Save failed, AnyKey not found");
             return;
-        } else if (output_str.contains("ERROR:")) {
+        }
+        else if (output_str.contains("ERROR:")) {
             setStatus(output_str + "try re-inserting and/or saving again");
-        } else {
+        }
+        else {
             qDebug() << "password save output=" << output_str << endl;
             // if( output_str.contains("password saved")){
             // patch, sometimes it's empty then most likely its also saved correctly
             // setStatus("unknown error, try re-inserting and saving again");
         }
         ui->passwordEdit->setFocus();
-    } else {
+    }
+    else {
         setStatus("Skipping empty password, writing addReturn and copyProtect flags...");
         anykeySaveSettings();
         runCommand("read_settings\n");
@@ -264,7 +277,8 @@ void MainWindow::on_saveButton_clicked() {
     writeGuiControls();
 }
 
-void MainWindow::on_actionClose_triggered() {
+void MainWindow::on_actionClose_triggered()
+{
     QApplication::quit();
     // This now calls the destructor which will stop anykey_crd etc.
 }
@@ -272,7 +286,8 @@ void MainWindow::on_actionClose_triggered() {
 // you need a valid license code and this downloads a valid license file once.
 // after this is installed no more online requests are needed and this license.json
 // is checked upon each startup of the app instead
-bool MainWindow::checkLicense() {
+bool MainWindow::checkLicense()
+{
     if (licenseRegistered) {
         return true;
     }
@@ -321,7 +336,8 @@ bool MainWindow::checkLicense() {
 
 // show message in status bar. sprinkled around a lot to
 // give user nice feedback of what is happening
-void MainWindow::setStatus(const QString &msg) {
+void MainWindow::setStatus(const QString &msg)
+{
     qDebug() << "status: " << msg << endl;
     statusBar()->showMessage(msg, 5000);
 }
@@ -330,7 +346,8 @@ void MainWindow::setStatus(const QString &msg) {
 // however we do want to bring this one to front (that way only one configurator stays running)
 // and it shows it back to front when you execute another.
 // this is done with a timer look in constructor where we call this every 800 msec
-void MainWindow::checkShowWindow() {
+void MainWindow::checkShowWindow()
+{
     bool showWindow = false;
     QSharedMemory sharedMemory("AnyKey Configurator Shared");
     if (!sharedMemory.attach()) {
@@ -358,7 +375,8 @@ void MainWindow::checkShowWindow() {
 
 // Main communication with our device is done through the anykey_crd daemon
 // this allows reading+writing messages back and forth to our usb device.
-void MainWindow::readCRD() {
+void MainWindow::readCRD()
+{
     QString output = anykeycrd->readAllStandardOutput();
     QStringList lines = output.split("\n");
 
@@ -383,19 +401,22 @@ void MainWindow::readCRD() {
             if (ui->daemonAutoType->isChecked()) {
                 anykeycrd->write("type\n");
                 setStatus("AnyKey detected doing CR for typing password...");
-            } else {
+            }
+            else {
                 setStatus("AnyKey detected");
                 anykeycrd->write("none\n");
             }
             line = "";
             ui->passwordEdit->selectAll();
             ui->passwordEdit->setFocus();
-        } else if (line.contains("cmd:")) {
+        }
+        else if (line.contains("cmd:")) {
             if (commands_queue.length() > 0) {
                 if (commands_queue.at(0).contains("read_settings")) setStatus("Reading settings...");
                 anykeycrd->write(commands_queue.at(0).toLocal8Bit());
                 commands_queue.removeFirst();
-            } else {
+            }
+            else {
                 anykeycrd->write("\n"); // none or empty string skips command
             }
             line = "";
@@ -411,7 +432,8 @@ void MainWindow::readCRD() {
             if (!line.contains("kbd_conf=")) {
                 setStatus("ERROR: could not read settings.");
                 showMessage("Read settings failed", "Try toggling advanced settings to re-read or re-insert your AnyKey and try again.");
-            } else {
+            }
+            else {
                 anykeyParseSettings(line);
                 line = ""; // clear line so next ifs don't catch false cmd
             }
@@ -498,7 +520,8 @@ void MainWindow::readCRD() {
     }
 }
 
-void MainWindow::startAnykeyCRD() {
+void MainWindow::startAnykeyCRD()
+{
     // we handle both stdout and stderr in same readCRD slot
     // in future version we might split this when the method
     // grows too much. For now it's maintainable with mergedchannels.
@@ -512,13 +535,15 @@ void MainWindow::startAnykeyCRD() {
     ui->daemonStatusLabel->setText("running");
 }
 
-void MainWindow::stopAnykeyCRD() {
+void MainWindow::stopAnykeyCRD()
+{
     anykeycrd->kill();
     anykeycrd->waitForFinished();
     ui->daemonStatusLabel->setText("stopped");
 }
 
-void MainWindow::showRegisteredControls() {
+void MainWindow::showRegisteredControls()
+{
     ui->titleLabel->setText("Insert your AnyKey then type a password and click on save:");
     setStatus("");
     ui->passwordEdit->setEchoMode(QLineEdit::Password);
@@ -536,7 +561,8 @@ void MainWindow::showRegisteredControls() {
 
     if (!ui->advancedSettingsToggle->isChecked()) {
         hideAdvancedItems();
-    } else {
+    }
+    else {
         this->on_advancedSettingsToggle_clicked(true);
     }
 
@@ -565,7 +591,8 @@ void MainWindow::showRegisteredControls() {
     }
 }
 
-void MainWindow::showConfigurator() {
+void MainWindow::showConfigurator()
+{
     this->showNormal();
     this->show();
     this->raise(); // bring on top for Mac OS
@@ -577,12 +604,14 @@ void MainWindow::showConfigurator() {
     runCommand("read_settings\n");
 }
 
-void MainWindow::typePasswordAgain() {
+void MainWindow::typePasswordAgain()
+{
     bPendingPasswordType = true;
     showMessage("Type password", "Inserted AnyKey will do Challenge Response and type password after window loses focus", 8);
 }
 
-void MainWindow::appFocusChanged(Qt::ApplicationState state) {
+void MainWindow::appFocusChanged(Qt::ApplicationState state)
+{
     if (bPendingPasswordType) {
         // Inactive means lost focus, active means you bring back to front
         if (state == Qt::ApplicationState::ApplicationInactive) {
@@ -593,7 +622,8 @@ void MainWindow::appFocusChanged(Qt::ApplicationState state) {
     }
 }
 
-void MainWindow::toggleAutostart() {
+void MainWindow::toggleAutostart()
+{
     qDebug() << "toggleAutostart..." << flush;
 #ifdef __APPLE__
     LaunchAgent anykeyLA;
@@ -602,7 +632,8 @@ void MainWindow::toggleAutostart() {
         qDebug() << "uninstalling..." << endl;
         anykeyLA.uninstall();
         autostartAction->setText(tr("Enable autostart"));
-    } else {
+    }
+    else {
         qDebug() << "installing..." << endl;
         anykeyLA.install();
         autostartAction->setText(tr("Disable autostart"));
@@ -611,7 +642,8 @@ void MainWindow::toggleAutostart() {
 }
 
 // menu items on tray icon!
-void MainWindow::createActions() {
+void MainWindow::createActions()
+{
     // for the shortcuts to work we also add these to regular menu
     // that way if window is hidden we can still use shortcuts (this works
     // verry well on mac os, not perfectly in windows. but with right click all is good there...).
@@ -658,7 +690,8 @@ void MainWindow::createActions() {
 #endif
 }
 
-void MainWindow::createTrayIcon() {
+void MainWindow::createTrayIcon()
+{
     trayIconMenu = new QMenu(this);
     trayIconMenu->addAction(restoreAction);
     trayIconMenu->addAction(minimizeAction);
@@ -681,20 +714,24 @@ void MainWindow::createTrayIcon() {
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
 }
 
-void MainWindow::on_actionType_password_triggered() {
+void MainWindow::on_actionType_password_triggered()
+{
     typePasswordAgain();
     ui->passwordEdit->setFocus();
 }
 
-void MainWindow::on_actionOpen_triggered() {
+void MainWindow::on_actionOpen_triggered()
+{
     showConfigurator();
 }
 
-void MainWindow::on_actionHide_triggered() {
+void MainWindow::on_actionHide_triggered()
+{
     hide();
 }
 
-void MainWindow::closeEvent(QCloseEvent *event) {
+void MainWindow::closeEvent(QCloseEvent *event)
+{
     // minimize into tray. unless we're still in registration mode
     // then we truly exit here (trayIcon was not yet activated)
     if (trayIconActivated && trayIcon->isVisible()) {
@@ -704,7 +741,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     }
 }
 
-void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason) {
+void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason)
+{
     switch (reason) {
     case QSystemTrayIcon::Trigger:
         // qDebug()<<"Trayicon trigger"<<endl;
@@ -725,12 +763,14 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason) {
 }
 
 // shows notification style message (windows on right bottom, mac on top right)
-void MainWindow::showMessage(const QString &title, const QString &msg, int seconds) {
+void MainWindow::showMessage(const QString &title, const QString &msg, int seconds)
+{
     QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::MessageIcon(1);
     trayIcon->showMessage(title, msg, icon, seconds * 1000);
 }
 
-void MainWindow::setIcon(int) {
+void MainWindow::setIcon(int)
+{
     QIcon icon(":anykey_app_logo_256.png");
     trayIcon->setIcon(icon);
     trayIcon->setToolTip("AnyKey Configurator v" + QString(CONFIGURATOR_VERSION));
@@ -739,7 +779,8 @@ void MainWindow::setIcon(int) {
     setWindowIcon(icon);
 }
 
-bool MainWindow::registerLicense(QString activation_code) {
+bool MainWindow::registerLicense(QString activation_code)
+{
     // create custom temporary event loop on stack
     QEventLoop eventLoop;
     QNetworkAccessManager mgr;
@@ -779,7 +820,8 @@ bool MainWindow::registerLicense(QString activation_code) {
 
         // all a-ok return true!!!
         return true;
-    } else {
+    }
+    else {
         setStatus("REQUEST FAILED!");
         delete reply;
         return false;
@@ -788,7 +830,8 @@ bool MainWindow::registerLicense(QString activation_code) {
 
 // anykey_save tool, might become deprecated some day if anykey_crd
 // implements all protocol/firmware features
-QString MainWindow::anykeySave(const QStringList &arguments) {
+QString MainWindow::anykeySave(const QStringList &arguments)
+{
     QString home_path = QCoreApplication::applicationDirPath();
     QProcess anykey_save;
     anykey_save.setProcessChannelMode(QProcess::MergedChannels);
@@ -819,20 +862,24 @@ QString MainWindow::anykeySave(const QStringList &arguments) {
     return output_str;
 }
 
-QString MainWindow::anykeySavePassword(const QString &password) {
+QString MainWindow::anykeySavePassword(const QString &password)
+{
     setStatus("Saving password...");
     QString result = "password_saved";
 
     if (ui->addReturn->isChecked()) {
         if (ui->copyProtectToggle->isChecked()) {
             runCommand("write_password_cps:" + password + "\n");
-        } else {
+        }
+        else {
             runCommand("write_password_s:" + password + "\n");
         }
-    } else { // skip return
+    }
+    else { // skip return
         if (ui->copyProtectToggle->isChecked()) {
             runCommand("write_password_cpn:" + password + "\n");
-        } else {
+        }
+        else {
             runCommand("write_password_n:" + password + "\n");
         }
     }
@@ -840,11 +887,13 @@ QString MainWindow::anykeySavePassword(const QString &password) {
     return result;
 }
 
-void MainWindow::anykeyFactoryReset() {
+void MainWindow::anykeyFactoryReset()
+{
     runCommand("format_eeprom\n");
 }
 
-void MainWindow::runCommand(const QString &command) {
+void MainWindow::runCommand(const QString &command)
+{
     // check if command is not already on queue
     for (int i = 0; i < commands_queue.length(); i++) {
         if (commands_queue.at(i) == command) return;
@@ -859,7 +908,8 @@ void MainWindow::runCommand(const QString &command) {
 // here we parse it and set the advanced setting controls etc.
 // in case device_mapped is 0 it means it has a salt (probably from other pc) and we allow
 // reading it if you know the password to link it on other pc.
-void MainWindow::anykeyParseSettings(const QString &response) {
+void MainWindow::anykeyParseSettings(const QString &response)
+{
     QString result = response;
     if (result.contains("ERROR: ")) {
         setStatus(result);
@@ -935,7 +985,8 @@ void MainWindow::anykeyParseSettings(const QString &response) {
         ui->saltStatus->setText("Unprotected");
         ui->daemonAutoType->setChecked(false);
         ui->typeButton->setEnabled(false); // disable the CR typing until salt is set
-    } else {
+    }
+    else {
         ui->deviceId->setText(deviceId);
         if (deviceInMapping == 1) {
             ui->typeButton->setEnabled(true);
@@ -943,7 +994,8 @@ void MainWindow::anykeyParseSettings(const QString &response) {
             ui->saltStatus->setText("Secured");
             ui->updateSaltButton->setEnabled(true);
             ui->updateSaltButton->setText("Change Secret");
-        } else {
+        }
+        else {
             ui->typeButton->setEnabled(false);
             ui->copyProtectToggle->setEnabled(false);
             ui->saltStatus->setText("Unknown");
@@ -961,7 +1013,8 @@ void MainWindow::anykeyParseSettings(const QString &response) {
 // Save settings with write_flags: ...
 // used when you click save with empty pass
 // quickly modifies addReturn and copyProtect flags
-void MainWindow::anykeySaveSettings() {
+void MainWindow::anykeySaveSettings()
+{
     int activateCopyProtect = 0;
     int activateReturnPress = 0;
     if (ui->copyProtectToggle->isEnabled()) {
@@ -985,12 +1038,14 @@ void MainWindow::anykeySaveSettings() {
 }
 
 // Save settings with write_settings: ...
-void MainWindow::anykeySaveAdvancedSettings() {
+void MainWindow::anykeySaveAdvancedSettings()
+{
     setStatus("Saving configuration...");
 
     if (ui->daemonAutoLock->isChecked()) {
         runCommand("autolock_on\n");
-    } else {
+    }
+    else {
         runCommand("autolock_off\n");
     }
 
@@ -1014,13 +1069,15 @@ void MainWindow::anykeySaveAdvancedSettings() {
 // this is later returned. and we'll auto add it to our devices.map upon success
 // in anykey_crd. Basically a read_salt command now not only returns
 // salt + devid but also updates the devices.map file so upon next C.R. it works
-void MainWindow::anykeyReadSalt(const QString &password) {
+void MainWindow::anykeyReadSalt(const QString &password)
+{
     runCommand("read_salt:" + password + "\n");
 }
 
 // called after write_salt with response of device
 // show new device id and show secured in gui
-void MainWindow::parseWriteSaltResponse(const QString &result) {
+void MainWindow::parseWriteSaltResponse(const QString &result)
+{
     // code is 3 bytes device_id+ 32 bytes as salt
     // QString result = anykeySave( QStringList() << "-salt" << code );
     // qDebug() << "result="<<result<<endl;
@@ -1028,7 +1085,8 @@ void MainWindow::parseWriteSaltResponse(const QString &result) {
         QMessageBox::warning(this, tr("AnyKey"), result, QMessageBox::Ok);
         setStatus("Saving new secret failed.");
         return;
-    } else {
+    }
+    else {
         if (result.contains("salt saved to device")) {
             QString devId = result.right(4).left(3);
             setStatus("Salt saved your new device id=" + devId);
@@ -1041,17 +1099,20 @@ void MainWindow::parseWriteSaltResponse(const QString &result) {
     }
 }
 
-void MainWindow::anykeyUpdateSalt(const QString &code) {
+void MainWindow::anykeyUpdateSalt(const QString &code)
+{
     setStatus("Saving salt and device id...");
     runCommand("write_salt:" + code + "\n");
     runCommand("read_settings\n");
 }
 
-void MainWindow::on_updateSaltButton_clicked() {
+void MainWindow::on_updateSaltButton_clicked()
+{
     if (ui->updateSaltButton->text().contains("Read Secret")) {
         setStatus("Reading device salt using password...");
         anykeyReadSalt(ui->passwordEdit->text());
-    } else { // update or generate salt
+    }
+    else { // update or generate salt
         // TODO: future work we keep same device id
         // and only change salt. for now we re-generate everything
         QString code = randomString(35); // 3 for dev id, 32 for salt
@@ -1059,7 +1120,8 @@ void MainWindow::on_updateSaltButton_clicked() {
     }
 }
 
-void MainWindow::on_actionAbout_triggered() {
+void MainWindow::on_actionAbout_triggered()
+{
     // this works but with the main window minimized this now closes entire app
     QMessageBox mbox;
     mbox.setText(tr("AnyKey Configurator\n"
@@ -1072,15 +1134,18 @@ void MainWindow::on_actionAbout_triggered() {
     // by setting qapp closeevents to something else...
 }
 
-void MainWindow::on_showPassword_clicked(bool checked) {
+void MainWindow::on_showPassword_clicked(bool checked)
+{
     if (checked) {
         ui->passwordEdit->setEchoMode(QLineEdit::Normal);
-    } else {
+    }
+    else {
         ui->passwordEdit->setEchoMode(QLineEdit::Password);
     }
 }
 
-QString MainWindow::randomString(int password_length) {
+QString MainWindow::randomString(int password_length)
+{
     QString randomPass = "";
     while (randomPass.length() < password_length) {
         randomPass += QUuid::createUuid().toString();
@@ -1102,20 +1167,24 @@ QString MainWindow::randomString(int password_length) {
     return genPass;
 }
 
-void MainWindow::on_generateButton_clicked() {
+void MainWindow::on_generateButton_clicked()
+{
     ui->passwordEdit->setText(randomString(ui->generateLength->value()));
     ui->passwordEdit->setFocus();
 }
 
-void MainWindow::on_passwordEdit_textChanged(const QString &) {
+void MainWindow::on_passwordEdit_textChanged(const QString &)
+{
     // setStatus("");
 }
 
-void MainWindow::on_keyboardLayoutBox_currentIndexChanged(int index) {
+void MainWindow::on_keyboardLayoutBox_currentIndexChanged(int index)
+{
     qDebug() << "keyboardLayoutBox index=" << index << endl;
 }
 
-void MainWindow::hideAdvancedItems() {
+void MainWindow::hideAdvancedItems()
+{
     ui->keyboardLayoutBox->hide();
     ui->startupDelaySlider->hide();
     ui->keypressDelaySlider->hide();
@@ -1163,7 +1232,8 @@ void MainWindow::hideAdvancedItems() {
 #endif
 }
 
-void MainWindow::on_advancedSettingsToggle_clicked(bool checked) {
+void MainWindow::on_advancedSettingsToggle_clicked(bool checked)
+{
     if (checked) {
         runCommand("read_settings\n");
     }
@@ -1218,41 +1288,49 @@ void MainWindow::on_advancedSettingsToggle_clicked(bool checked) {
         this->setMinimumHeight(380);
         this->setMaximumHeight(380);
 #endif
-    } else { // hide items
+    }
+    else { // hide items
         hideAdvancedItems();
     }
 
     ui->passwordEdit->setFocus();
 }
 
-void MainWindow::on_restoreDefaultsBtn_clicked() {
+void MainWindow::on_restoreDefaultsBtn_clicked()
+{
     ui->keyboardLayoutBox->setCurrentIndex(4);
     ui->startupDelaySlider->setValue(1);
     ui->keypressDelaySlider->setValue(1);
 }
 
-void MainWindow::on_startupDelaySlider_valueChanged(int value) {
+void MainWindow::on_startupDelaySlider_valueChanged(int value)
+{
     ui->startupDelaySpin->setValue(value);
 }
 
-void MainWindow::on_keypressDelaySlider_valueChanged(int value) {
+void MainWindow::on_keypressDelaySlider_valueChanged(int value)
+{
     ui->keypressDelaySpin->setValue(value);
 }
 
-void MainWindow::on_startupDelaySpin_valueChanged(int arg1) {
+void MainWindow::on_startupDelaySpin_valueChanged(int arg1)
+{
     ui->startupDelaySlider->setValue(arg1);
 }
 
-void MainWindow::on_keypressDelaySpin_valueChanged(int arg1) {
+void MainWindow::on_keypressDelaySpin_valueChanged(int arg1)
+{
     ui->keypressDelaySlider->setValue(arg1);
 }
 
-void MainWindow::on_applyAdvancedSettingsBtn_clicked() {
+void MainWindow::on_applyAdvancedSettingsBtn_clicked()
+{
     anykeySaveAdvancedSettings();
 }
 
 // This is now called Factory Reset (label)
-void MainWindow::on_formatEepromButton_clicked() {
+void MainWindow::on_formatEepromButton_clicked()
+{
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "AnyKey Factory Reset",
                                   "This reset's your device to factory settings. \nWarning: It removes all passwords and salts saved on "
@@ -1260,7 +1338,8 @@ void MainWindow::on_formatEepromButton_clicked() {
                                   QMessageBox::Yes | QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         qDebug() << "Ok was clicked";
-    } else {
+    }
+    else {
         qDebug() << "Cancel clicked";
         return;
     }
@@ -1276,7 +1355,8 @@ void MainWindow::on_formatEepromButton_clicked() {
     ui->copyProtectToggle->setEnabled(false);
 }
 
-void MainWindow::on_upgradeFirmwareButton_clicked() {
+void MainWindow::on_upgradeFirmwareButton_clicked()
+{
     qDebug() << "TODO: anykey_save -upgrade ..." << endl;
     // we basically need to replicate our current firmware flasher.sh
     // script here.
@@ -1287,13 +1367,15 @@ void MainWindow::on_upgradeFirmwareButton_clicked() {
     // TODO: make signature in the firmware.bin before releasing this...
 }
 
-void MainWindow::on_daemonRestartButton_clicked() {
+void MainWindow::on_daemonRestartButton_clicked()
+{
     if (ui->daemonRestartButton->text() == "Stop") {
         setStatus("Stopping CR daemon...");
         stopAnykeyCRD();
         ui->daemonRestartButton->setText("Start");
         setStatus("");
-    } else {
+    }
+    else {
         setStatus("Starting CR daemon...");
         startAnykeyCRD();
         ui->daemonRestartButton->setText("Stop");
@@ -1301,7 +1383,8 @@ void MainWindow::on_daemonRestartButton_clicked() {
     }
 }
 
-void MainWindow::on_typeButton_clicked() {
+void MainWindow::on_typeButton_clicked()
+{
     runCommand("type\n");
     setStatus("Sending challenge response to type password...");
     ui->passwordEdit->selectAll();

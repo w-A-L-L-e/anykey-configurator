@@ -1,38 +1,37 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QSystemTrayIcon>
 #include <QCloseEvent>
+#include <QLabel>
+#include <QMainWindow>
 #include <QProcess>
 #include <QProgressBar>
-#include <QLabel>
+#include <QSystemTrayIcon>
 #include <QTimer>
 
 namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
-public:
+  public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void setStatus(const QString& msg);
+    void setStatus(const QString &msg);
 
-protected:
+  protected:
     void closeEvent(QCloseEvent *event);
 
-private slots:
+  private slots:
     void setIcon(int index);
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
 
     bool checkLicense();
-    bool registerLicense( QString activation_code );
-    QString anykeySave( const QStringList& arguments );
-    QString anykeySavePassword( const QString& password );
+    bool registerLicense(QString activation_code);
+    QString anykeySave(const QStringList &arguments);
+    QString anykeySavePassword(const QString &password);
 
     void showConfigurator();
 
@@ -41,19 +40,18 @@ private slots:
     void startAnykeyCRD();
     void stopAnykeyCRD();
 
-    void runCommand(const QString& command);
+    void runCommand(const QString &command);
 
-    void showRegisteredControls(); //show all controls if registration checked
-    void anykeyParseSettings(const QString&);
+    void showRegisteredControls(); // show all controls if registration checked
+    void anykeyParseSettings(const QString &);
     void anykeySaveSettings();
     void anykeySaveAdvancedSettings();
 
     void anykeyFactoryReset();
 
-    void anykeyReadSalt(const QString& password );
-    void parseWriteSaltResponse(const QString&);
-    void anykeyUpdateSalt(const QString& code );
-
+    void anykeyReadSalt(const QString &password);
+    void parseWriteSaltResponse(const QString &);
+    void anykeyUpdateSalt(const QString &code);
 
     void readGuiControls();
     void writeGuiControls();
@@ -92,12 +90,12 @@ private slots:
     void on_actionHide_triggered();
     void toggleAutostart();
 
-private:
+  private:
     Ui::MainWindow *ui;
 
     void createTrayIcon();
     void createActions();
-    void showMessage(const QString& title, const QString& msg, int seconds=8);
+    void showMessage(const QString &title, const QString &msg, int seconds = 8);
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
@@ -109,8 +107,8 @@ private:
     QAction *autostartAction;
 
     QProcess *anykeycrd;
-    bool licenseRegistered; //cache once it's registered
-	bool trayIconActivated;
+    bool licenseRegistered; // cache once it's registered
+    bool trayIconActivated;
 
     // add references to Label and ProgressBar
     QLabel *statusLabel;

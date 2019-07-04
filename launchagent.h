@@ -26,7 +26,8 @@ class LaunchAgent {
     //==============
     void install();
     void uninstall();
-    string getPath() {
+    string getPath()
+    {
         return plist_path;
     }
     bool is_installed();

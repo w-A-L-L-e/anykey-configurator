@@ -15,7 +15,8 @@ using namespace std;
 // it's not the first one started)
 // This is tightly coupled with mainwindow method checkShowWindow. And basically moving common code into
 // a seperate class like we did on mac for launchctl would be nicer here...
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     // make windows with retina or 4k still look good
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication a(argc, argv);
@@ -45,8 +46,8 @@ int main(int argc, char *argv[]) {
         char *data = (char *)sharedMemory.data();
         data[0] = 'S'; // show window on other instance
         sharedMemory.unlock();
-
-    } else {
+    }
+    else {
         sharedMemory.create(1); // Otherwise allocate 1 byte of memory
         is_running = false;     // And determines that another instance is not running
 

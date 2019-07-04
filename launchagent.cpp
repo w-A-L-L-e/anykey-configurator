@@ -30,7 +30,8 @@ return      : void
 exceptions  :
 algorithm   : trivial
 -----------------------------------------------------------------------------*/
-void LaunchAgent::init() {
+void LaunchAgent::init()
+{
     plist_path = getHomeDir() + "/Library/LaunchAgents/org.anykey.configurator.plist";
 }
 
@@ -42,7 +43,8 @@ return      :
 exceptions  :
 algorithm   : trivial
 -----------------------------------------------------------------------------*/
-LaunchAgent::LaunchAgent() {
+LaunchAgent::LaunchAgent()
+{
     init();
 }
 
@@ -54,7 +56,8 @@ return      :
 exceptions  :
 algorithm   : trivial
 -----------------------------------------------------------------------------*/
-LaunchAgent::~LaunchAgent() {
+LaunchAgent::~LaunchAgent()
+{
 }
 
 /*-----------------------------------------------------------------------------
@@ -65,7 +68,8 @@ return      : output from command as string
 exceptions  :
 algorithm   : use popen
 -----------------------------------------------------------------------------*/
-string LaunchAgent::runCommand(const string &command) {
+string LaunchAgent::runCommand(const string &command)
+{
     FILE *pstream;
     if ((pstream = popen(command.c_str(), "r")) == NULL) return "";
 
@@ -90,7 +94,8 @@ return      : plist content as string
 exceptions  :
 algorithm   :
 -----------------------------------------------------------------------------*/
-string LaunchAgent::autoRestartPlist() {
+string LaunchAgent::autoRestartPlist()
+{
     string plist = "";
 
     plist += "<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n";
@@ -126,7 +131,8 @@ return      : plist content as string
 exceptions  :
 algorithm   :
 -----------------------------------------------------------------------------*/
-string LaunchAgent::autoStartPlist() {
+string LaunchAgent::autoStartPlist()
+{
     string plist = "";
 
     plist += "<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n";
@@ -154,7 +160,8 @@ string LaunchAgent::autoStartPlist() {
     return plist;
 }
 
-string LaunchAgent::getHomeDir() {
+string LaunchAgent::getHomeDir()
+{
     const char *homedir;
     if ((homedir = getenv("HOME")) == NULL) {
         homedir = getpwuid(getuid())->pw_dir;
@@ -173,12 +180,14 @@ return      :
 exceptions  :
 algorithm   :
 -----------------------------------------------------------------------------*/
-bool LaunchAgent::is_installed() {
+bool LaunchAgent::is_installed()
+{
     ifstream rp(plist_path.c_str());
     if (rp.is_open()) {
         rp.close();
         return true;
-    } else {
+    }
+    else {
         return false;
     }
 }
@@ -194,7 +203,8 @@ return      :
 exceptions  :
 algorithm   :
 -----------------------------------------------------------------------------*/
-void LaunchAgent::install() {
+void LaunchAgent::install()
+{
 #ifdef __APPLE__
     // truncate any old content and write in local lib folder (like we see other apps do
     // examples are pulsesecure postgres agent etc.
@@ -225,7 +235,8 @@ return      : plist content as string
 exceptions  :
 algorithm   :
 -----------------------------------------------------------------------------*/
-void LaunchAgent::uninstall() {
+void LaunchAgent::uninstall()
+{
 #ifdef __APPLE__
     string res = runCommand("launchctl unload -w " + plist_path);
 
