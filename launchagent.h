@@ -2,10 +2,10 @@
 author        : Walter Schreppers
 filename      : launchagent.h
 created       : 2/7/2019 at 00:41:32
-modified      : 
-version       : 
+modified      :
+version       :
 copyright     : Walter Schreppers
-bugreport(log): 
+bugreport(log):
 =============================================================================*/
 
 #ifndef LAUNCHAGENT_H
@@ -17,33 +17,34 @@ using namespace std;
 class LaunchAgent {
 
   public:
-    //constructor & destructor
+    // constructor & destructor
     //==========================
     LaunchAgent();
     ~LaunchAgent();
 
-    //public members
+    // public members
     //==============
     void install();
     void uninstall();
-    string getPath(){ return plist_path; }
+    string getPath() {
+        return plist_path;
+    }
     bool is_installed();
 
   private:
-    //private members:
+    // private members:
     //================
     void init();
-    string runCommand(const string& command);
+    string runCommand(const string &command);
     string getHomeDir();
 
-    //private locals:
+    // private locals:
     //===============
     string autoStartPlist();
     string autoRestartPlist();
 
-    string plist_path; //stores home_dir/plist_file_path
+    string plist_path; // stores home_dir/plist_file_path
 
-}; //end of class LaunchAgent
+}; // end of class LaunchAgent
 
 #endif
-
