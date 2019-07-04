@@ -47,8 +47,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // Set status and progress bar
     // create objects for the label and progress bar
     statusLabel = new QLabel(this);
+	
+	// we might re-introduce this for upgrading right now 
+	// all is fast enough to not need one 
     //statusProgressBar = new QProgressBar(this);
-    // make progress bar text invisible
     //statusProgressBar->setTextVisible(false);
 
     // add the two controls to the status bar
@@ -78,9 +80,8 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     else{
         showRegisteredControls();
-        //runCommand("read_settings\n"); //whenever anykey is inserted,read its settings
-
         //brings window to front if a start of app is required.
+		//it does this by periodically checking ipc/sharedMemory
         windowTimer = new QTimer(this);
         connect(windowTimer, SIGNAL(timeout()), this, SLOT(checkShowWindow()));
         windowTimer->start(800);
@@ -104,12 +105,11 @@ void MainWindow::writeGuiControls(){
     QString home_path = QCoreApplication::applicationDirPath();
     QString fileName(home_path+"/anykey.cfg");
     QFile config_file(fileName);
-    if( !config_file.open(QIODevice::WriteOnly) )
-     {
+    if( !config_file.open(QIODevice::WriteOnly) ){
        QString msg = QString( tr("Unable to save configuration to file: %1") ).arg(fileName);
        QMessageBox::critical(this, tr("AnyKey could not save configuration"), msg, QMessageBox::Ok );
        return;
-     }
+    }
 
     QString controls="";
     controls+= "add_return="+QString::number(ui->addReturn->isChecked())+";";
@@ -142,10 +142,10 @@ void MainWindow::readGuiControls(){
             if( keyvalue.at(0).contains("copy_protect")) copy_protect = keyvalue.at(1).toInt();
             if( keyvalue.at(0).contains("auto_type")   ) auto_type    = keyvalue.at(1).toInt();
 
-            //for now always retusrn advanced settings as closed.
+            // for now always retusrn advanced settings as closed.
             // this because it triggers a read settings when inserted an anykey without copyprotect
             // it sometimes fails (reading setting during typing...)
-            //if( keyvalue.at(0).contains("advanced_settings")) advanced_settings = keyvalue.at(1).toInt();
+            // if( keyvalue.at(0).contains("advanced_settings")) advanced_settings = keyvalue.at(1).toInt();
         }
 
         config_file.close();
@@ -181,15 +181,13 @@ void MainWindow::readGuiControls(){
 void MainWindow::on_saveButton_clicked(){
     if( !checkLicense() ){
         setStatus("Registering activation code : "+ui->passwordEdit->text());
-        //QTimer::singleShot(200, this, SLOT(updateCaption())); -> todo...
-
         bool licenseOk = MainWindow::registerLicense(ui->passwordEdit->text());
 
         if (!licenseOk){
             setStatus("Invalid activation code");
             return;
         }
-        else{ //activation ok!
+        else{ // activation ok!
             if( checkLicense() ){ //double check if license is now valid
                 showRegisteredControls();
                 ui->titleLabel->setText("Insert your AnyKey then type a password and click on save:");
@@ -248,7 +246,7 @@ void MainWindow::on_saveButton_clicked(){
           qDebug()<<"password save output="<< output_str << endl;
             // if( output_str.contains("password saved")){
             // patch, sometimes it's empty then most likely its also saved correctly
-            //setStatus("unknown error, try re-inserting and saving again");
+            // setStatus("unknown error, try re-inserting and saving again");
         }
         ui->passwordEdit->setFocus();
     }
@@ -277,10 +275,11 @@ bool MainWindow::checkLicense() {
         return true;
     }
     qDebug()<<"checking license..."<<endl;
-    //run this ./anykey_save -license
-    // returns 'ok' or 'invalid license'
+
     QString home_path = QCoreApplication::applicationDirPath();
 
+	// run  home_path/anykey_save -license
+    // returns 'ok' or 'invalid license'
     QProcess anykey_save;
     anykey_save.setProcessChannelMode(QProcess::MergedChannels);
     anykey_save.setWorkingDirectory(home_path);
@@ -323,18 +322,18 @@ bool MainWindow::checkLicense() {
 }
 
 
-//show message in status bar. sprinkled around a lot to
-//give user nice feedback of what is happening
+// show message in status bar. sprinkled around a lot to
+// give user nice feedback of what is happening
 void MainWindow::setStatus(const QString& msg){
     qDebug()<<"status: "<<msg<<endl;
     statusBar()->showMessage(msg, 5000);
 }
 
 
-//if another app is started it detects this one is running and closes
-//however we do want to bring this one to front (that way only one configurator stays running)
-//and it shows it back to front when you execute another.
-//this is done with a timer look in constructor where we call this every 800 msec
+// if another app is started it detects this one is running and closes
+// however we do want to bring this one to front (that way only one configurator stays running)
+// and it shows it back to front when you execute another.
+// this is done with a timer look in constructor where we call this every 800 msec
 void MainWindow::checkShowWindow(){
     bool showWindow = false;
     QSharedMemory sharedMemory("AnyKey Configurator Shared");
@@ -373,6 +372,8 @@ void MainWindow::readCRD(){
         if(line!="cmd: "){ //only print interesting lines on debug
             qDebug() << "READ: '" << line << "'";
         }
+		
+		// enable controls when anykey inserted
         if(line.contains("connected")){
             ui->saveButton->setEnabled(true);
             ui->applyAdvancedSettingsBtn->setEnabled(true);
@@ -381,7 +382,8 @@ void MainWindow::readCRD(){
             ui->updateSaltButton->setEnabled(true);
         }
 
-        if(line.contains("connected cmd:")){ //first connect
+		// first connect -> do autotype if enabled
+        if(line.contains("connected cmd:")){ 
             if(ui->daemonAutoType->isChecked()){
                 anykeycrd->write("type\n");
                 setStatus("AnyKey detected doing CR for typing password...");
@@ -408,15 +410,16 @@ void MainWindow::readCRD(){
 
         if( line.contains("reset_response=Whiping eeprom (FF)eeprom cleared")){
             setStatus("AnyKey reset to factory settings. Remove and re-insert");
-            showMessage("Factory reset succeeded", "Please re-insert your AnyKey to reset and read new settings.");
+            showMessage( "Factory reset succeeded", 
+						 "Please re-insert your AnyKey to reset and read new settings.");
             line="";
         }
 
         if( line.contains("settings=") ){
             if(!line.contains("kbd_conf=")){
                 setStatus("ERROR: could not read settings.");
-                showMessage("Read settings failed",
-                            "Try toggling advanced settings to re-read or re-insert your AnyKey and try again.");
+                showMessage( "Read settings failed",
+                             "Try toggling advanced settings to re-read or re-insert your AnyKey and try again.");
             }
             else{
                 anykeyParseSettings(line);
@@ -484,6 +487,7 @@ void MainWindow::readCRD(){
             line="";
         }
 
+		// disable controls when anykey removed
         if(line.startsWith("disconnect")){
             setStatus("Anykey disconnected");
             ui->saveButton->setEnabled(false);
@@ -728,7 +732,7 @@ void MainWindow::closeEvent(QCloseEvent* event){
 }
 
 void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason){
-    switch (reason) {
+	switch (reason) {
         case QSystemTrayIcon::Trigger:
             //qDebug()<<"Trayicon trigger"<<endl;
 #ifdef _WIN32
@@ -741,14 +745,14 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason){
             showConfigurator();
             break;
         case QSystemTrayIcon::MiddleClick:
-
             break;
         default:
-            ;
-        }
+			break;
+	}
 }
 
 
+// shows notification style message (windows on right bottom, mac on top right)
 void MainWindow::showMessage(const QString& title, const QString& msg, int seconds){
     QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::MessageIcon(1);
     trayIcon->showMessage(title, msg, icon, seconds * 1000);
@@ -758,7 +762,7 @@ void MainWindow::showMessage(const QString& title, const QString& msg, int secon
 void MainWindow::setIcon(int){
     QIcon icon( ":anykey_app_logo_256.png");
     trayIcon->setIcon(icon);
-    trayIcon->setToolTip("AnyKey Configurator v2.3.0");
+    trayIcon->setToolTip("AnyKey Configurator v"+QString(CONFIGURATOR_VERSION));
 
     //also set the window icon to same 
     setWindowIcon(icon);
@@ -766,56 +770,56 @@ void MainWindow::setIcon(int){
 
 
 bool MainWindow::registerLicense( QString activation_code ){
-        // create custom temporary event loop on stack
-        QEventLoop eventLoop;
-        QNetworkAccessManager mgr;
-        QObject::connect(&mgr, SIGNAL(finished(QNetworkReply*)), &eventLoop, SLOT(quit()));
+	// create custom temporary event loop on stack
+	QEventLoop eventLoop;
+	QNetworkAccessManager mgr;
+	QObject::connect(&mgr, SIGNAL(finished(QNetworkReply*)), &eventLoop, SLOT(quit()));
 
-        setStatus("Contacting anykey.shop...");
+	setStatus("Contacting anykey.shop...");
 
-        // the HTTP request
-        QNetworkRequest req( QUrl( QString("http://anykey.shop/activate/"+activation_code+".json") ) );
-        //QNetworkRequest req( QUrl( QString("http://localhost:3000/activate/"+activation_code+".json") ) );
+	// the HTTP request
+	QNetworkRequest req( QUrl( QString("http://anykey.shop/activate/"+activation_code+".json") ) );
+	//QNetworkRequest req( QUrl( QString("http://localhost:3000/activate/"+activation_code+".json") ) );
 
-        QNetworkReply *reply = mgr.get(req);
-        eventLoop.exec(); // blocks stack until "finished()" has been called
+	QNetworkReply *reply = mgr.get(req);
+	eventLoop.exec(); // blocks stack until "finished()" has been called
 
-        if (reply->error() == QNetworkReply::NoError) {
+	if (reply->error() == QNetworkReply::NoError) {
+		setStatus("Request OK, saving license...");
 
-            setStatus("Request OK, saving license...");
+		//success: write reply license.json
+		QString license_content = reply->readAll();
 
-            //success: write reply license.json
-            QString license_content = reply->readAll();
+		QString home_path = QCoreApplication::applicationDirPath();
+		QString fileName(home_path+"/license.json");
 
-            QString home_path = QCoreApplication::applicationDirPath();
-            QString fileName(home_path+"/license.json");
+		QFile license_file(fileName);
+		if( !license_file.open(QIODevice::WriteOnly) ){
+			QString msg = QString( tr("Unable to save license to file: %1") ).arg(fileName);
+			QMessageBox::critical(this, tr("AnyKey could not save license"), msg, QMessageBox::Ok );
+			return false;
+		}
 
-            QFile license_file(fileName);
-            if( !license_file.open(QIODevice::WriteOnly) )
-             {
-               QString msg = QString( tr("Unable to save license to file: %1") ).arg(fileName);
-               QMessageBox::critical(this, tr("AnyKey could not save license"), msg, QMessageBox::Ok );
-               return false;
-             }
+		//write license_content into license_file
+		QTextStream outputStream(&license_file);
+		outputStream << license_content;
 
-            //write license_content into license_file
-            QTextStream outputStream(&license_file);
-            outputStream << license_content;
+		license_file.close();
+		delete reply;
 
-            license_file.close();
-            delete reply;
-
-            //all a-ok return true!!!
-            return true;
-        }
-        else {
-            setStatus("REQUEST FAILED!");
-            delete reply;
-            return false;
-        }
+		//all a-ok return true!!!
+		return true;
+	}
+	else {
+		setStatus("REQUEST FAILED!");
+		delete reply;
+		return false;
+    }
 }
 
 
+// anykey_save tool, might become deprecated some day if anykey_crd
+// implements all protocol/firmware features
 QString MainWindow::anykeySave( const QStringList& arguments ){
     QString home_path = QCoreApplication::applicationDirPath();
     QProcess anykey_save;
@@ -965,31 +969,31 @@ void MainWindow::anykeyParseSettings(const QString& response ){
 
     ui->deviceId->setText(deviceId);
     if( deviceId == "ffffff"){
-       ui->deviceId->setText("Blank");
-       ui->copyProtectToggle->setEnabled(false);
-       ui->copyProtectToggle->setChecked(false); //make it type password on next save without cr!
-       ui->updateSaltButton->setEnabled(true);
-       ui->updateSaltButton->setText("Create Secret");
-       ui->saltStatus->setText("Unprotected");
-       ui->daemonAutoType->setChecked(false);
-       ui->typeButton->setEnabled(false); //disable the CR typing until salt is set
+		ui->deviceId->setText("Blank");
+		ui->copyProtectToggle->setEnabled(false);
+		ui->copyProtectToggle->setChecked(false); //make it type password on next save without cr!
+		ui->updateSaltButton->setEnabled(true);
+		ui->updateSaltButton->setText("Create Secret");
+		ui->saltStatus->setText("Unprotected");
+		ui->daemonAutoType->setChecked(false);
+		ui->typeButton->setEnabled(false); //disable the CR typing until salt is set
     }
     else{
-       ui->deviceId->setText(deviceId);
-       if(deviceInMapping == 1){
-           ui->typeButton->setEnabled(true);
-           ui->copyProtectToggle->setEnabled(true);
-           ui->saltStatus->setText("Secured");
-           ui->updateSaltButton->setEnabled(true);
-           ui->updateSaltButton->setText("Change Secret");
-       }
-       else{
-           ui->typeButton->setEnabled(false);
-           ui->copyProtectToggle->setEnabled(false);
-           ui->saltStatus->setText("Unknown");
-           ui->updateSaltButton->setEnabled(true);
-           ui->updateSaltButton->setText("Read Secret");
-       }
+		ui->deviceId->setText(deviceId);
+		if(deviceInMapping == 1){
+			ui->typeButton->setEnabled(true);
+			ui->copyProtectToggle->setEnabled(true);
+			ui->saltStatus->setText("Secured");
+			ui->updateSaltButton->setEnabled(true);
+			ui->updateSaltButton->setText("Change Secret");
+		}
+		else{
+			ui->typeButton->setEnabled(false);
+			ui->copyProtectToggle->setEnabled(false);
+			ui->saltStatus->setText("Unknown");
+			ui->updateSaltButton->setEnabled(true);
+			ui->updateSaltButton->setText("Read Secret");
+		}
     }
 
     ui->firmwareVersion->setText(firmware_version);
@@ -1022,7 +1026,7 @@ void MainWindow::anykeySaveSettings(){
     qDebug()<<"runCommand="<<write_flags<<endl;
     runCommand( write_flags );
 
-    readGuiControls(); //store flags to disk also
+	readGuiControls(); //store flags to disk also
 }
 
 
@@ -1071,10 +1075,8 @@ void MainWindow::parseWriteSaltResponse(const QString& result){
     //QString result = anykeySave( QStringList() << "-salt" << code );
     //qDebug() << "result="<<result<<endl;
     if( result.contains("ERROR:") ){
-        QMessageBox::warning(this, tr("AnyKey"),
-                                                result,
+        QMessageBox::warning(this, tr("AnyKey"),result,
                                                 QMessageBox::Ok );
-
         setStatus("Saving new secret failed.");
         return;
     }
@@ -1095,47 +1097,48 @@ void MainWindow::parseWriteSaltResponse(const QString& result){
 
 void MainWindow::anykeyUpdateSalt(const QString& code ){
     setStatus("Saving salt and device id...");
-    runCommand("write_salt:"+code+"\n");
-    runCommand("read_settings\n");
+	runCommand("write_salt:"+code+"\n");
+	runCommand("read_settings\n");
 }
 
 
 void MainWindow::on_updateSaltButton_clicked(){    
-    if( ui->updateSaltButton->text().contains("Read Secret")){
-        setStatus("Reading device salt using password...");
-        anykeyReadSalt(ui->passwordEdit->text());
-    }
-    else{ // update or generate salt
-        //TODO: future work we keep same device id
-        // and only change salt. for now we re-generate everything
-        QString code = randomString(35); //3 for dev id, 32 for salt
-        anykeyUpdateSalt( code );
-    }
+	if( ui->updateSaltButton->text().contains("Read Secret")){
+		setStatus("Reading device salt using password...");
+		anykeyReadSalt(ui->passwordEdit->text());
+	}
+	else{ // update or generate salt
+		//TODO: future work we keep same device id
+		// and only change salt. for now we re-generate everything
+		QString code = randomString(35); //3 for dev id, 32 for salt
+		anykeyUpdateSalt( code );
+	}
 }
 
 
 void MainWindow::on_actionAbout_triggered(){
-    // this works but with the main window minimized this now closes entire app
-    QMessageBox mbox;
-    mbox.setText( tr("AnyKey Configurator\n"
-                     "AnyKey is a product of AnyKey bvba.\n"
-                     "Patented in Belgium BE1019719 (A3).\n\n"
-                     "Version : 2.3.0 \n"
-                     "Author  : Walter Schreppers\n") );
-    mbox.exec();
+	// this works but with the main window minimized this now closes entire app
+	QMessageBox mbox;
+	mbox.setText( tr("AnyKey Configurator\n"
+					 "AnyKey is a product of AnyKey bvba.\n"
+					 "Patented in Belgium BE1019719 (A3).\n\n")+
+					 QString("Version : ")+QString(CONFIGURATOR_VERSION)+" \n"+
+					 "Author  : Walter Schreppers\n" 
+				);
+	mbox.exec();
 
-    //TODO: fix bug seen where if you minimize then it closes app 
+	//TODO: fix bug seen where if you minimize then it closes app 
 	//by setting qapp closeevents to something else...
 }
 
 
 void MainWindow::on_showPassword_clicked(bool checked){
-    if( checked ){
-        ui->passwordEdit->setEchoMode(QLineEdit::Normal);
-    }
-    else{
-        ui->passwordEdit->setEchoMode(QLineEdit::Password);
-    }
+	if( checked ){
+		ui->passwordEdit->setEchoMode(QLineEdit::Normal);
+	}
+	else{
+		ui->passwordEdit->setEchoMode(QLineEdit::Password);
+	}
 }
 
 
@@ -1174,119 +1177,122 @@ void MainWindow::on_passwordEdit_textChanged(const QString&){
 
 
 void MainWindow::on_keyboardLayoutBox_currentIndexChanged( int index ){
-  qDebug() << "keyboardLayoutBox index="<< index <<endl;
+	qDebug() << "keyboardLayoutBox index="<< index <<endl;
 }
 
 
 void MainWindow::hideAdvancedItems(){
-  ui->keyboardLayoutBox         -> hide();
-  ui->startupDelaySlider        -> hide();
-  ui->keypressDelaySlider       -> hide();
-  ui->restoreDefaultsBtn        -> hide();
-  ui->applyAdvancedSettingsBtn  -> hide();
-  ui->labelLayout         ->hide();
-  ui->labelStartDelay     ->hide();
-  ui->labelKeypressDelay  ->hide();
-  ui->startupDelaySpin    ->hide();
-  ui->keypressDelaySpin   ->hide();
+	ui->keyboardLayoutBox         	-> hide();
+	ui->startupDelaySlider        	-> hide();
+	ui->keypressDelaySlider       	-> hide();
+	ui->restoreDefaultsBtn        	-> hide();
+	ui->applyAdvancedSettingsBtn  	-> hide();
+	ui->labelLayout         		-> hide();
+	ui->labelStartDelay     ->hide();
+	ui->labelKeypressDelay  ->hide();
+	ui->startupDelaySpin    ->hide();
+	ui->keypressDelaySpin   ->hide();
 
-  ui->firmwareVersion->hide();
-  ui->firmwareVersionLabel->hide();
-  ui->bootloaderLabel->hide();
-  ui->bootloaderStatus->hide();
-  ui->upgradeFirmwareButton->hide();
-  ui->formatEepromButton->hide();
+	ui->firmwareVersion->hide();
+	ui->firmwareVersionLabel->hide();
+	ui->bootloaderLabel->hide();
+	ui->bootloaderStatus->hide();
+	ui->upgradeFirmwareButton->hide();
+	ui->formatEepromButton->hide();
 
-  ui->deviceId->hide();
-  ui->deviceIdLabel->hide();
-  ui->saltStatus->hide();
-  ui->updateSaltButton->hide();
+	ui->deviceId->hide();
+	ui->deviceIdLabel->hide();
+	ui->saltStatus->hide();
+	ui->updateSaltButton->hide();
 
-  ui->daemonLabel->hide();
-  ui->daemonStatusLabel->hide();
-  //ui->daemonAutostartCheck->hide();
-  //ui->daemonAutoType->hide(); //this is now in regular settings
-  ui->daemonAutoLock->hide();
-  ui->daemonRestartButton->hide();
-  ui->typeButton->hide();
+	ui->daemonLabel->hide();
+	ui->daemonStatusLabel->hide();
+	//ui->daemonAutostartCheck->hide();
+	//ui->daemonAutoType->hide(); //this is now in regular settings
+	ui->daemonAutoLock->hide();
+	ui->daemonRestartButton->hide();
+	ui->typeButton->hide();
 
 #ifdef __APPLE__
-  this->setMinimumWidth(540);
-  this->setMinimumHeight(178);
-  this->setMaximumHeight(178);
-#else //windows, linux
-  /*this->setMinimumWidth(800); //520
-  this->setMinimumHeight(237); //187
-  this->setMaximumHeight(237);*/
+	this->setMinimumWidth(540);
+	this->setMinimumHeight(178);
+	this->setMaximumHeight(178);
+#else 
+	//windows, linux
+	
+	/*this->setMinimumWidth(800); //520
+	this->setMinimumHeight(237); //187
+	this->setMaximumHeight(237);*/
 
-  this->setMinimumWidth(540); 
-  this->setMinimumHeight(178); 
-  this->setMaximumHeight(178);
+	this->setMinimumWidth(540); 
+	this->setMinimumHeight(178); 
+	this->setMaximumHeight(178);
 
 #endif
 }
 
 
 void MainWindow::on_advancedSettingsToggle_clicked(bool checked){
-  if( checked ){
-    runCommand("read_settings\n");
-  }
-  if(ui->advancedSettingsToggle->isChecked()){
-    ui->keyboardLayoutBox         -> show();
-    ui->startupDelaySlider        -> show();
-    ui->keypressDelaySlider       -> show();
-    ui->restoreDefaultsBtn        -> show();
-    ui->applyAdvancedSettingsBtn  -> show();
-    ui->labelLayout         ->show();
-    ui->labelStartDelay     ->show();
-    ui->labelKeypressDelay  ->show();
-    ui->startupDelaySpin    ->show();
-    ui->keypressDelaySpin   ->show();
+	if( checked ){
+		runCommand("read_settings\n");
+	}
+	if(ui->advancedSettingsToggle->isChecked()){
+		ui->keyboardLayoutBox         -> show();
+		ui->startupDelaySlider        -> show();
+		ui->keypressDelaySlider       -> show();
+		ui->restoreDefaultsBtn        -> show();
+		ui->applyAdvancedSettingsBtn  -> show();
+		ui->labelLayout         ->show();
+		ui->labelStartDelay     ->show();
+		ui->labelKeypressDelay  ->show();
+		ui->startupDelaySpin    ->show();
+		ui->keypressDelaySpin   ->show();
 
-    ui->firmwareVersion->show();
-    ui->firmwareVersionLabel->show();
-    ui->bootloaderLabel->show();
-    ui->bootloaderStatus->show();
-    ui->upgradeFirmwareButton->show();
-    ui->upgradeFirmwareButton->setEnabled(false);
-    ui->formatEepromButton->show();
+		ui->firmwareVersion->show();
+		ui->firmwareVersionLabel->show();
+		ui->bootloaderLabel->show();
+		ui->bootloaderStatus->show();
+		ui->upgradeFirmwareButton->show();
+		ui->upgradeFirmwareButton->setEnabled(false);
+		ui->formatEepromButton->show();
 
-    ui->daemonLabel->show();
-    ui->daemonStatusLabel->show();
-    //ui->daemonAutostartCheck->show(); // moved to regular small window
-    ui->daemonAutoType->show();
-    ui->daemonAutoType->setEnabled(true);
+		ui->daemonLabel->show();
+		ui->daemonStatusLabel->show();
+		//ui->daemonAutostartCheck->show(); // moved to regular small window
+		ui->daemonAutoType->show();
+		ui->daemonAutoType->setEnabled(true);
 
-    //this is for a next release (as we still have bugs here)
-    //ui->daemonAutoLock->show();
-    //ui->daemonAutoLock->setEnabled(true);
-    ui->daemonAutoLock->hide();
+		//this is for a next release (as we still have bugs here)
+		//ui->daemonAutoLock->show();
+		//ui->daemonAutoLock->setEnabled(true);
+		ui->daemonAutoLock->hide();
 
-    ui->daemonRestartButton->show();
-    ui->typeButton->show();
+		ui->daemonRestartButton->show();
+		ui->typeButton->show();
 
-    ui->deviceId->show();
-    ui->deviceIdLabel->show();
-    ui->saltStatus->show();
-    ui->updateSaltButton->show();
+		ui->deviceId->show();
+		ui->deviceIdLabel->show();
+		ui->saltStatus->show();
+		ui->updateSaltButton->show();
 #ifdef __APPLE__
-    this->setMinimumWidth(540);
-    this->setMinimumHeight(420);
-    this->setMaximumHeight(420);
-#else //windows and linux
-	/*this->setMinimumWidth(800); //520 looks good on 200% and 150% scale
-    this->setMinimumHeight(560); //380 but width 640 and height 420 is minimum for 100% scale on retina...
-    this->setMaximumHeight(560);*/
-	this->setMinimumWidth(540); 
-    this->setMinimumHeight(380); 
-    this->setMaximumHeight(380);
+		this->setMinimumWidth(540);
+		this->setMinimumHeight(420);
+		this->setMaximumHeight(420);
+#else 
+		//windows and linux
+		/*this->setMinimumWidth(800); //520 looks good on 200% and 150% scale
+		this->setMinimumHeight(560); //380 but width 640 and height 420 is minimum for 100% scale on retina...
+		this->setMaximumHeight(560);*/
+		this->setMinimumWidth(540); 
+		this->setMinimumHeight(380); 
+		this->setMaximumHeight(380);
 #endif
-  }
-  else{//hide items
-    hideAdvancedItems();
-  }
+	}
+	else{//hide items
+		hideAdvancedItems();
+	}
 
-  ui->passwordEdit->setFocus();
+	ui->passwordEdit->setFocus();
 }
 
 
@@ -1329,9 +1335,10 @@ void MainWindow::on_formatEepromButton_clicked(){
                                     QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         qDebug() << "Ok was clicked";
-    } else {
+    }
+	else {
         qDebug() << "Cancel clicked";
-        return;
+		return;
     }
 
     setStatus("Formatting anykey eeprom...");
@@ -1343,7 +1350,6 @@ void MainWindow::on_formatEepromButton_clicked(){
 
     //after device reset copy protect is by default disabled.
     ui->copyProtectToggle->setEnabled(false);
-
 }
 
 
@@ -1382,4 +1388,3 @@ void MainWindow::on_typeButton_clicked(){
     ui->passwordEdit->selectAll();
     ui->passwordEdit->setFocus();
 }
-
