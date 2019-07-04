@@ -1,6 +1,7 @@
 ; anykey_installer.nsi
 ; Installs configurator, anykey_save and anykey_crd tools +
-; TODO: add registry items for autostartup after reboots
+; makes it start upon bootup
+; Author: Walter Schreppers
 ;--------------------------------
 !include x64.nsh
 

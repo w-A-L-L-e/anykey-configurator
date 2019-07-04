@@ -1,3 +1,13 @@
+/*=============================================================================
+author        : Walter Schreppers
+filename      : main.cpp
+created       : 3/6/2017
+modified      :
+version       :
+copyright     : Walter Schreppers
+bugreport(log):
+=============================================================================*/
+
 #include "mainwindow.h"
 #include <QApplication>
 

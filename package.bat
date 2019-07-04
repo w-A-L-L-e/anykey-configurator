@@ -1,3 +1,13 @@
+;=============================================================================
+;  author        : Walter Schreppers
+;  filename      : package.bat
+;  created       : 28/6/2019
+;  modified      :
+;  version       :
+;  copyright     : Walter Schreppers
+;  bugreport(log):
+;  description   : Generate windows 10 installer and compress binaries
+;=============================================================================
 
 echo "compressing exe for distribution..."
 windows-installer\upx.exe release\AnyKey.exe

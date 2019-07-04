@@ -1,3 +1,13 @@
+/*=============================================================================
+author        : Walter Schreppers
+filename      : mainwindow.h
+created       : 3/6/2017
+modified      :
+version       :
+copyright     : Walter Schreppers
+bugreport(log):
+=============================================================================*/
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 

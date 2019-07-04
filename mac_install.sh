@@ -1,3 +1,13 @@
+#=============================================================================
+# author        : Walter Schreppers
+# filename      : mac_install.sh
+# created       : 1/3/2018
+# modified      :
+# version       :
+# copyright     : Walter Schreppers
+# bugreport(log):
+# description   : Compile and package helper script for Mac OS
+#=============================================================================
 
 qmake AnyKey.pro_mac
 make

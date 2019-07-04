@@ -1,6 +1,7 @@
 #-------------------------------------------------
 #
 # Project created by QtCreator 2017-06-03T20:48:58
+# Author: Walter Schreppers
 #
 #-------------------------------------------------
 # QMAKE_MAC_SDK = macosx10.14
