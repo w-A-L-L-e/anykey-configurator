@@ -1,3 +1,5 @@
+
+qmake AnyKey.pro_mac
 make
 
 # already copied using make gui in anykey_save_tool folder now!
