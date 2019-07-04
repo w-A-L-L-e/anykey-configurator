@@ -94,9 +94,26 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     stopAnykeyCRD();
+	if(trayIconActivated){
+        delete windowTimer;
+
+		delete trayIcon;
+		delete trayIconMenu;
+  
+		delete minimizeAction;
+		delete restoreAction;
+        delete quitAction;
+        // delete maximizeAction; //deprecated
+#ifdef __APPLE__
+        delete typeAction;
+        delete autostartAction;
+#endif
+		delete statusLabel;
+        // delete statusProgressBar; //deprecated
+	}
+
     delete anykeycrd;
     delete ui;
-    delete windowTimer;
 }
 
 
