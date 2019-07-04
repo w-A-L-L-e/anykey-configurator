@@ -29,7 +29,7 @@ using namespace std;
 //exe name of anykey_save
 #define ANYKEY_SAVE "anykey_save"
 #define ANYKEY_TYPE_DAEMON "anykey_crd"
-#define CONFIGURATOR_VERSION "2.3.0"
+#define CONFIGURATOR_VERSION "2.3.2"
 
 //constructor checks license and shows
 //alternate gui if license check fails to register.
