@@ -22,8 +22,8 @@ rm -rf /Applications/AnyKey.app
 echo "copy new version..."
 cp -r AnyKey.app /Applications/
 
-echo "compress it..."
 # brew install upx
+#echo "compress it..."
 #upx -9 /Applications/AnyKey.app/Contents/MacOS/AnyKey
 #upx -9 /Applications/AnyKey.app/Contents/MacOS/anykey_crd
 #upx -9 /Applications/AnyKey.app/Contents/MacOS/anykey_save

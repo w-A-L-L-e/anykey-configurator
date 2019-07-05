@@ -220,10 +220,14 @@ void MainWindow::on_saveButton_clicked()
                 ui->saveButton->setText("Save");
                 setStatus("Registration successfull. AnyKeyConfigurator activated!");
                 ui->passwordEdit->setText("");
+
+                //upon first registration disable c.p until salt secret is linked
                 ui->copyProtectToggle->show();
                 ui->copyProtectToggle->setEnabled(false);
                 ui->copyProtectToggle->setChecked(false);
                 ui->daemonAutoType->show();
+                ui->daemonAutoType->setChecked(false);
+
 #ifdef __APPLE__
                 // make configurator auto start again upon reboot
                 LaunchAgent anykeyAutostarter;
@@ -564,8 +568,9 @@ void MainWindow::showRegisteredControls()
     ui->advancedSettingsToggle->show();
     ui->menubar->show();
     ui->copyProtectToggle->show();
-    ui->copyProtectToggle->setDisabled(true); // disable if no linkage yet
+    ui->copyProtectToggle->setEnabled(true); //on second start allow all controls regardless of c.p.
     ui->daemonAutoType->show();
+    ui->daemonAutoType->setEnabled(true);
 
     readGuiControls();
 
