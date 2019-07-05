@@ -107,7 +107,7 @@ class MainWindow : public QMainWindow {
     void createActions();
     void showMessage(const QString &title, const QString &msg, int seconds = 8);
 
-    //private locals
+    // private locals
     bool licenseRegistered; // cache once it's registered
     bool trayIconActivated;
     bool bPendingPasswordType;
@@ -115,23 +115,22 @@ class MainWindow : public QMainWindow {
     QString statusMessage;
     QStringList commands_queue;
 
-    QTimer *windowTimer=0;
+    QTimer *windowTimer = 0;
 
-    QSystemTrayIcon *trayIcon=0;
-    QMenu *trayIconMenu=0;
-    QAction *minimizeAction=0;
-    QAction *maximizeAction=0;
-    QAction *restoreAction=0;
-    QAction *typeAction=0;
-    QAction *quitAction=0;
-    QAction *autostartAction=0;
+    QSystemTrayIcon *trayIcon = 0;
+    QMenu *trayIconMenu = 0;
+    QAction *minimizeAction = 0;
+    QAction *maximizeAction = 0;
+    QAction *restoreAction = 0;
+    QAction *typeAction = 0;
+    QAction *quitAction = 0;
+    QAction *autostartAction = 0;
 
-    QProcess *anykeycrd=0;
+    QProcess *anykeycrd = 0;
 
     // add references to Label and ProgressBar
-    QLabel *statusLabel=0;
-    QProgressBar *statusProgressBar=0;
-
+    QLabel *statusLabel = 0;
+    QProgressBar *statusProgressBar = 0;
 };
 
 #endif // MAINWINDOW_H

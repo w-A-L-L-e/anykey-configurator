@@ -100,21 +100,21 @@ MainWindow::~MainWindow()
 {
     stopAnykeyCRD();
     // if (trayIconActivated) {
-    if(windowTimer) delete windowTimer;
-    if(trayIcon) delete trayIcon;
-    if(trayIconMenu) delete trayIconMenu;
-    if(minimizeAction) delete minimizeAction ;
-    if(restoreAction) delete restoreAction;
-    if(quitAction) delete quitAction;
-    // delete maximizeAction; //deprecated
+    if (windowTimer) delete windowTimer;
+    if (trayIcon) delete trayIcon;
+    if (trayIconMenu) delete trayIconMenu;
+    if (minimizeAction) delete minimizeAction;
+    if (restoreAction) delete restoreAction;
+    if (quitAction) delete quitAction;
+        // delete maximizeAction; //deprecated
 #ifdef __APPLE__
-    if(typeAction) delete typeAction;
-    if(autostartAction) delete autostartAction;
+    if (typeAction) delete typeAction;
+    if (autostartAction) delete autostartAction;
 #endif
-    if(statusLabel) delete statusLabel;
+    if (statusLabel) delete statusLabel;
     // delete statusProgressBar; //deprecated
     // }
-    if(anykeycrd) delete anykeycrd;
+    if (anykeycrd) delete anykeycrd;
     delete ui;
 }
 
