@@ -58,6 +58,10 @@ read
 echo "Making final image..."
 hdiutil convert AnyKeyConfigurator.dmg -format UDZO -o AnyKeyConfigurator_$DATE.dmg
 
+echo "removing temp dmg..."
+rm AnyKeyConfigurator.dmg
+cd ..
+
 echo "done"
 
 
