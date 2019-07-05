@@ -564,6 +564,7 @@ void MainWindow::showRegisteredControls()
     ui->advancedSettingsToggle->show();
     ui->menubar->show();
     ui->copyProtectToggle->show();
+    ui->copyProtectToggle->setDisabled(true); // disable if no linkage yet
     ui->daemonAutoType->show();
 
     readGuiControls();
@@ -574,9 +575,6 @@ void MainWindow::showRegisteredControls()
     else {
         this->on_advancedSettingsToggle_clicked(true);
     }
-
-    ui->copyProtectToggle->setDisabled(true);
-    ui->daemonAutoType->show();
 
     ui->saveButton->setText("Save");
     ui->generateLength->setValue(20);
@@ -987,29 +985,29 @@ void MainWindow::anykeyParseSettings(const QString &response)
     ui->deviceId->setText(deviceId);
     if (deviceId == "ffffff") {
         ui->deviceId->setText("Blank");
+        ui->saltStatus->setText("Unprotected");
         ui->copyProtectToggle->setEnabled(false);
-        ui->copyProtectToggle->setChecked(false); // make it type password on next save without cr!
+        ui->copyProtectToggle->setChecked(false); // when blank, copy protect is false
         ui->updateSaltButton->setEnabled(true);
         ui->updateSaltButton->setText("Create Secret");
-        ui->saltStatus->setText("Unprotected");
-        ui->daemonAutoType->setChecked(false);
+        // ui->daemonAutoType->setChecked(false); // is confusing when it twitches on/off->however should be off when there is no c.p.
         ui->typeButton->setEnabled(false); // disable the CR typing until salt is set
     }
     else {
         ui->deviceId->setText(deviceId);
         if (deviceInMapping == 1) {
-            ui->typeButton->setEnabled(true);
-            ui->copyProtectToggle->setEnabled(true);
             ui->saltStatus->setText("Secured");
+            ui->copyProtectToggle->setEnabled(true);
             ui->updateSaltButton->setEnabled(true);
             ui->updateSaltButton->setText("Change Secret");
+            ui->typeButton->setEnabled(true);
         }
         else {
-            ui->typeButton->setEnabled(false);
-            ui->copyProtectToggle->setEnabled(false);
             ui->saltStatus->setText("Unknown");
+            ui->copyProtectToggle->setEnabled(false);
             ui->updateSaltButton->setEnabled(true);
             ui->updateSaltButton->setText("Read Secret");
+            ui->typeButton->setEnabled(false);
         }
     }
 
@@ -1270,7 +1268,7 @@ void MainWindow::on_advancedSettingsToggle_clicked(bool checked)
         ui->daemonStatusLabel->show();
         // ui->daemonAutostartCheck->show(); // moved to regular small window
         ui->daemonAutoType->show();
-        ui->daemonAutoType->setEnabled(true);
+        // ui->daemonAutoType->setEnabled(true);
 
         // this is for a next release (as we still have bugs here)
         // ui->daemonAutoLock->show();
