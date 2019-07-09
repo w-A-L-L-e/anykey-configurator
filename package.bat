@@ -11,6 +11,8 @@
 
 echo "compressing exe for distribution..."
 windows-installer\upx.exe release\AnyKey.exe
+windows-installer\upx.exe release\anykey_save.exe
+windows-installer\upx.exe release\anykey_crd.exe
 
 echo "release\AnyKey.exe built successfull generating new installer..."
 cd windows-installer
