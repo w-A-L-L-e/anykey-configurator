@@ -221,7 +221,7 @@ void MainWindow::on_saveButton_clicked()
                 setStatus("Registration successfull. AnyKeyConfigurator activated!");
                 ui->passwordEdit->setText("");
 
-                //upon first registration disable c.p until salt secret is linked
+                // upon first registration disable c.p until salt secret is linked
                 ui->copyProtectToggle->show();
                 ui->copyProtectToggle->setEnabled(false);
                 ui->copyProtectToggle->setChecked(false);
@@ -249,34 +249,8 @@ void MainWindow::on_saveButton_clicked()
 
     if (password.length() > 0) {
         setStatus("Saving password...");
-
         QString output_str = anykeySavePassword(password);
-        if (output_str.contains("License check failed!")) {
-            /*QMessageBox::critical(this, tr("AnyKey"),
-                                                    tr("Invalid License!\n"
-                                                    "You need to activate this app using the activation code given."),
-                                                    QMessageBox::Ok );*/
-
-            setStatus("Invalid license or activation code!");
-        }
-        else if (output_str.contains("ERROR: could not find a connected")) {
-            QMessageBox::warning(this, tr("AnyKey"),
-                                 tr("Could not find a connected AnyKey in any USB ports\n"
-                                    "Please insert your AnyKey and try again."),
-                                 QMessageBox::Ok);
-
-            setStatus("Save failed, AnyKey not found");
-            return;
-        }
-        else if (output_str.contains("ERROR:")) {
-            setStatus(output_str + "try re-inserting and/or saving again");
-        }
-        else {
-            qDebug() << "password save output=" << output_str << endl;
-            // if( output_str.contains("password saved")){
-            // patch, sometimes it's empty then most likely its also saved correctly
-            // setStatus("unknown error, try re-inserting and saving again");
-        }
+        // error handling is now in readCRD as this is refactored to use anykey_crd
         ui->passwordEdit->setFocus();
     }
     else {
@@ -402,6 +376,13 @@ void MainWindow::readCRD()
 
         // enable controls when anykey inserted
         if (line.contains("connected")) {
+            if (ui->daemonAutoType->isChecked()) {
+                showMessage("AnyKey detected", "Sending challenge response with PC secret...", 2);
+            }
+            else {
+                showMessage("AnyKey detected", "AnyKey is allowed to type...", 2);
+            }
+
             ui->saveButton->setEnabled(true);
             ui->applyAdvancedSettingsBtn->setEnabled(true);
             ui->typeButton->setEnabled(true);
@@ -486,7 +467,7 @@ void MainWindow::readCRD()
             line = "";
         }
         if (line.contains("ERROR: password not saved")) {
-            showMessage("Save error", "Please re-insert your AnyKey and try again.");
+            showMessage("Password Save Error!", "Please re-insert your AnyKey and try again.");
             setStatus("ERROR during save. Please try again!");
             line = "";
         }
@@ -568,7 +549,7 @@ void MainWindow::showRegisteredControls()
     ui->advancedSettingsToggle->show();
     ui->menubar->show();
     ui->copyProtectToggle->show();
-    ui->copyProtectToggle->setEnabled(true); //on second start allow all controls regardless of c.p.
+    ui->copyProtectToggle->setEnabled(true); // on second start allow all controls regardless of c.p.
     ui->daemonAutoType->show();
     ui->daemonAutoType->setEnabled(true);
 
