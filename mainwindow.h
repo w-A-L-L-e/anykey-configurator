@@ -54,7 +54,7 @@ class MainWindow : public QMainWindow {
 
     void showRegisteredControls(); // show all controls if registration checked
     bool newerFirmwareAvailable(const QString &);
-    void parseFirmwareUpgrade(const QString&);
+    void parseFirmwareUpgrade(const QString &);
     void anykeyParseSettings(const QString &);
     void anykeySaveSettings();
     void anykeySaveAdvancedSettings();
@@ -104,7 +104,7 @@ class MainWindow : public QMainWindow {
 
     void on_daemonAutoType_toggled(bool checked);
 
-private:
+  private:
     Ui::MainWindow *ui;
 
     void createTrayIcon();
