@@ -523,6 +523,27 @@ void MainWindow::readCRD()
 void MainWindow::parseFirmwareUpgrade(const QString &line)
 {
     qDebug() << "parsing:" << line << endl;
+    QString status = line.split("firmware_upgrade=").at(1);
+
+    if (status.contains("resetting_device")) {
+        ui->upgradeFirmwareButton->setEnabled(false);
+        ui->mainProgressBar->setRange(0, 110);
+        ui->mainProgressBar->show();
+        ui->mainProgressBar->setValue(5);
+    }
+
+    if (status.contains("progress")) {
+        QString progress = status.split("progress:").at(1);
+        ui->mainProgressBar->setValue(8 + progress.toInt());
+    }
+
+    if (status.contains("finished")) {
+        ui->mainProgressBar->setValue(110);
+        ui->mainProgressBar->hide();
+        ui->upgradeFirmwareButton->setEnabled(true);
+    }
+
+    // on errors also hide bar + enable upgrade button for second try again...
 }
 
 void MainWindow::startAnykeyCRD()
@@ -1012,7 +1033,7 @@ void MainWindow::anykeyParseSettings(const QString &response)
     if (newerFirmwareAvailable(firmware_version)) {
         ui->upgradeFirmwareButton->setEnabled(true);
         setStatus("AnyKey ready, please upgrade firmware!");
-        showMessage("AnyKey firmware outdated", "Please click on 'Upgrade Firmware' to update your AnyKey firmware");
+        // showMessage("AnyKey firmware outdated", "Please click on 'Upgrade Firmware' to update your AnyKey firmware");
     }
     else {
         setStatus("AnyKey ready");
