@@ -92,7 +92,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         // it does this by periodically checking ipc/sharedMemory
         windowTimer = new QTimer(this);
         connect(windowTimer, SIGNAL(timeout()), this, SLOT(checkShowWindow()));
-        windowTimer->start(800);
+        windowTimer->start(500); //we also use this to update progress bar now every half second
     }
 }
 
@@ -333,9 +333,18 @@ void MainWindow::setStatus(const QString &msg)
 // if another app is started it detects this one is running and closes
 // however we do want to bring this one to front (that way only one configurator stays running)
 // and it shows it back to front when you execute another.
-// this is done with a timer look in constructor where we call this every 800 msec
+// this is done with a timer look in constructor where we call this every 500 msec
 void MainWindow::checkShowWindow()
 {
+    if(this->passwordIsSaving){
+        ui->mainProgressBar->setValue( ui->mainProgressBar->value()+1); //update progress bar also
+        if(ui->mainProgressBar->value()>=ui->mainProgressBar->maximum()){
+            this->passwordIsSaving = false;
+            ui->mainProgressBar->hide(); //timed out or something...
+        }
+    }
+
+
     bool showWindow = false;
     QSharedMemory sharedMemory("AnyKey Configurator Shared");
     if (!sharedMemory.attach()) {
@@ -453,6 +462,8 @@ void MainWindow::readCRD()
             ui->passwordEdit->selectAll();
             ui->passwordEdit->setFocus();
             line = "";
+            ui->mainProgressBar->hide();
+            this->passwordIsSaving = false;
         }
         if (line.startsWith("flags saved")) {
             setStatus("Flags saved");
@@ -890,6 +901,11 @@ QString MainWindow::anykeySave(const QStringList &arguments)
 QString MainWindow::anykeySavePassword(const QString &password)
 {
     setStatus("Saving password...");
+    this->passwordIsSaving = true;
+    ui->mainProgressBar->setRange(0,5); //max 8 * 500 msec
+    ui->mainProgressBar->setValue(1);
+    ui->mainProgressBar->show();
+
     QString result = "password_saved";
 
     if (ui->addReturn->isChecked()) {

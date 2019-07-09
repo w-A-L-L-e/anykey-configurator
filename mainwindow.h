@@ -136,6 +136,7 @@ private:
     // add references to Label and ProgressBar
     QLabel *statusLabel = nullptr;
     QProgressBar *statusProgressBar = nullptr;
+    bool passwordIsSaving = false;
 };
 
 #endif // MAINWINDOW_H
