@@ -53,6 +53,8 @@ class MainWindow : public QMainWindow {
     void runCommand(const QString &command);
 
     void showRegisteredControls(); // show all controls if registration checked
+    bool newerFirmwareAvailable(const QString &);
+    void parseFirmwareUpgrade(const QString&);
     void anykeyParseSettings(const QString &);
     void anykeySaveSettings();
     void anykeySaveAdvancedSettings();
@@ -100,7 +102,9 @@ class MainWindow : public QMainWindow {
     void on_actionHide_triggered();
     void toggleAutostart();
 
-  private:
+    void on_daemonAutoType_toggled(bool checked);
+
+private:
     Ui::MainWindow *ui;
 
     void createTrayIcon();
@@ -115,22 +119,23 @@ class MainWindow : public QMainWindow {
     QString statusMessage;
     QStringList commands_queue;
 
-    QTimer *windowTimer = 0;
+    QTimer *windowTimer = nullptr;
 
-    QSystemTrayIcon *trayIcon = 0;
-    QMenu *trayIconMenu = 0;
-    QAction *minimizeAction = 0;
-    QAction *maximizeAction = 0;
-    QAction *restoreAction = 0;
-    QAction *typeAction = 0;
-    QAction *quitAction = 0;
-    QAction *autostartAction = 0;
+    QSystemTrayIcon *trayIcon = nullptr;
+    QMenu *trayIconMenu = nullptr;
+    QAction *minimizeAction = nullptr;
+    QAction *maximizeAction = nullptr;
+    QAction *restoreAction = nullptr;
+    QAction *typeAction = nullptr;
+    QAction *quitAction = nullptr;
+    QAction *autostartAction = nullptr;
 
-    QProcess *anykeycrd = 0;
+    // background process daemon communicates with AnyKey over USB
+    QProcess *anykeycrd = nullptr;
 
     // add references to Label and ProgressBar
-    QLabel *statusLabel = 0;
-    QProgressBar *statusProgressBar = 0;
+    QLabel *statusLabel = nullptr;
+    QProgressBar *statusProgressBar = nullptr;
 };
 
 #endif // MAINWINDOW_H

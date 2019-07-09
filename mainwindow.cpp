@@ -64,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     // add the two controls to the status bar
     ui->statusbar->addPermanentWidget(statusLabel, 0);
     // ui->statusbar->addPermanentWidget(statusProgressBar,1);
+    ui->mainProgressBar->hide(); // hide progressbar until something is running...
 
     ui->titleLabel->setText("");
     setStatus("Checking license...");
@@ -511,7 +512,17 @@ void MainWindow::readCRD()
                         "You need to give the original saved password in the password field.\nThen click on Read Secret.");
             line = "";
         }
+
+        if (line.startsWith("firmware_upgrade=")) {
+            parseFirmwareUpgrade(line);
+            line = "";
+        }
     }
+}
+
+void MainWindow::parseFirmwareUpgrade(const QString &line)
+{
+    qDebug() << "parsing:" << line << endl;
 }
 
 void MainWindow::startAnykeyCRD()
@@ -998,9 +1009,22 @@ void MainWindow::anykeyParseSettings(const QString &response)
     }
 
     ui->firmwareVersion->setText(firmware_version);
-    setStatus("AnyKey ready");
-    // writeGuiControls(); //store read settings also on disk, we now only do this with 'save' clicked.
-    // reason is we also want to have the cp flag set on the key (and add return).
+    if (newerFirmwareAvailable(firmware_version)) {
+        ui->upgradeFirmwareButton->setEnabled(true);
+        setStatus("AnyKey ready, please upgrade firmware!");
+        showMessage("AnyKey firmware outdated", "Please click on 'Upgrade Firmware' to update your AnyKey firmware");
+    }
+    else {
+        setStatus("AnyKey ready");
+    }
+}
+
+bool MainWindow::newerFirmwareAvailable(const QString &firmware_version)
+{
+    // TODO: download + check version in firmware.bin
+    // compare and if current version is lower return true
+
+    return true; // right now always enable upgrade button.
 }
 
 // Save settings with write_flags: ...
@@ -1210,18 +1234,20 @@ void MainWindow::hideAdvancedItems()
     ui->typeButton->hide();
 
 #ifdef __APPLE__
-    this->setMinimumWidth(540);
-    this->setMinimumHeight(178);
-    this->setMaximumHeight(178);
+    this->setMinimumWidth(600);
+    this->setMinimumHeight(198); // 178 without mainProgressBar
+    this->setMaximumHeight(198);
 #else
     // windows, linux
-    /*this->setMinimumWidth(800); //520
-    this->setMinimumHeight(237); //187
-    this->setMaximumHeight(237);*/
+    /*
+        this->setMinimumWidth(800); //520
+        this->setMinimumHeight(237); //187
+        this->setMaximumHeight(237);
+    */
 
-    this->setMinimumWidth(540);
-    this->setMinimumHeight(178);
-    this->setMaximumHeight(178);
+    this->setMinimumWidth(600);
+    this->setMinimumHeight(198); // 178 without mainProgressBar
+    this->setMaximumHeight(198);
 #endif
 }
 
@@ -1269,17 +1295,19 @@ void MainWindow::on_advancedSettingsToggle_clicked(bool checked)
         ui->saltStatus->show();
         ui->updateSaltButton->show();
 #ifdef __APPLE__
-        this->setMinimumWidth(540);
-        this->setMinimumHeight(420);
-        this->setMaximumHeight(420);
+        this->setMinimumWidth(600);
+        this->setMinimumHeight(440); // 420 without mainProgressBar
+        this->setMaximumHeight(440);
 #else
         // windows and linux
-        /*this->setMinimumWidth(800); //520 looks good on 200% and 150% scale
-        this->setMinimumHeight(560); //380 but width 640 and height 420 is minimum for 100% scale on retina...
-        this->setMaximumHeight(560);*/
-        this->setMinimumWidth(540);
-        this->setMinimumHeight(380);
-        this->setMaximumHeight(380);
+        /*
+         this->setMinimumWidth(800); //520 looks good on 200% and 150% scale
+         this->setMinimumHeight(580); //380 but width 640 and height 420 is minimum for 100% scale on retina...
+         this->setMaximumHeight(580);
+        */
+        this->setMinimumWidth(600);
+        this->setMinimumHeight(400); // 380 without mainProgressBar
+        this->setMaximumHeight(400);
 #endif
     }
     else { // hide items
@@ -1350,14 +1378,8 @@ void MainWindow::on_formatEepromButton_clicked()
 
 void MainWindow::on_upgradeFirmwareButton_clicked()
 {
-    qDebug() << "TODO: anykey_save -upgrade ..." << endl;
-    // we basically need to replicate our current firmware flasher.sh
-    // script here.
-    // unlock bootloader with 'secret salt' by calling anykey_save tool -upgrade
-    // this does the sha256 to set bootlock bit and also receives a file to flash (signed with signature)
-    // (a 32k signed string) immediately enters bootloader and starts flashing...
-    // then device reboots (and bootloader has already flipped back the lockbit upon startup
-    // TODO: make signature in the firmware.bin before releasing this...
+    setStatus("Upgrading firmware...");
+    runCommand("upgrade_firmware\n");
 }
 
 void MainWindow::on_daemonRestartButton_clicked()
@@ -1382,4 +1404,9 @@ void MainWindow::on_typeButton_clicked()
     setStatus("Sending challenge response to type password...");
     ui->passwordEdit->selectAll();
     ui->passwordEdit->setFocus();
+}
+
+void MainWindow::on_daemonAutoType_toggled(bool checked)
+{
+    this->writeGuiControls();
 }

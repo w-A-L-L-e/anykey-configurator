@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>614</width>
-    <height>449</height>
+    <width>623</width>
+    <height>473</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -41,7 +41,223 @@
       <property name="topMargin">
        <number>0</number>
       </property>
+      <item row="0" column="0" colspan="5">
+       <widget class="QLabel" name="titleLabel">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>some text here</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QCheckBox" name="daemonAutoType">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Auto type</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QPushButton" name="generateButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Generate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="2">
+       <widget class="QCheckBox" name="advancedSettingsToggle">
+        <property name="text">
+         <string>Advanced Settings</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="2">
+       <widget class="QLabel" name="saltStatus">
+        <property name="text">
+         <string>status</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QPushButton" name="saveButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Save</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="labelLayout">
+        <property name="text">
+         <string>Keyboard Layout</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QCheckBox" name="addReturn">
+        <property name="text">
+         <string>Add Return</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QCheckBox" name="showPassword">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Show Password</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QCheckBox" name="copyProtectToggle">
+        <property name="text">
+         <string>Copy Protect</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="3">
+       <widget class="QPushButton" name="restoreDefaultsBtn">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Defaults</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="1">
+       <widget class="QLabel" name="firmwareVersion">
+        <property name="text">
+         <string>version</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="daemonLabel">
+        <property name="text">
+         <string>Chall. Resp. Daemon</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="3">
+       <widget class="QPushButton" name="updateSaltButton">
+        <property name="text">
+         <string>Create Secret</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <widget class="QLabel" name="labelStartDelay">
+        <property name="text">
+         <string>Startup delay</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="deviceIdLabel">
+        <property name="text">
+         <string>Device ID</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QSpinBox" name="generateLength">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>21</height>
+         </size>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <number>12</number>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="4">
+       <widget class="QSpinBox" name="keypressDelaySpin"/>
+      </item>
       <item row="3" column="0" colspan="5">
+       <widget class="QProgressBar" name="mainProgressBar">
+        <property name="value">
+         <number>24</number>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="1" colspan="3">
+       <widget class="QSlider" name="startupDelaySlider">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="0">
+       <widget class="QPushButton" name="formatEepromButton">
+        <property name="text">
+         <string>Factory Reset</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="2">
+       <widget class="QLabel" name="daemonStatusLabel">
+        <property name="text">
+         <string>stopped</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="5">
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -53,6 +269,66 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item row="11" column="2">
+       <widget class="QPushButton" name="upgradeFirmwareButton">
+        <property name="text">
+         <string>Upgrade Firmware</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="1" colspan="3">
+       <widget class="QSlider" name="keypressDelaySlider">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="0">
+       <widget class="QLabel" name="labelKeypressDelay">
+        <property name="text">
+         <string>Keypress delay</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="4">
+       <widget class="QPushButton" name="applyAdvancedSettingsBtn">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Apply</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="4">
+       <widget class="QSpinBox" name="startupDelaySpin"/>
+      </item>
+      <item row="6" column="4">
+       <widget class="QCheckBox" name="daemonAutoLock">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Auto logout</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="3" alignment="Qt::AlignRight">
+       <widget class="QLabel" name="bootloaderLabel">
+        <property name="text">
+         <string>Bootloader </string>
+        </property>
+       </widget>
       </item>
       <item row="1" column="0" colspan="4">
        <widget class="QLineEdit" name="passwordEdit">
@@ -76,59 +352,7 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="0">
-       <widget class="QLabel" name="labelStartDelay">
-        <property name="text">
-         <string>Startup delay</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <widget class="QLabel" name="deviceId">
-        <property name="text">
-         <string>blank</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="4">
-       <widget class="QSpinBox" name="startupDelaySpin"/>
-      </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="labelLayout">
-        <property name="text">
-         <string>Keyboard Layout</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="daemonLabel">
-        <property name="text">
-         <string>Chall. Resp. Daemon</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1" colspan="3">
-       <widget class="QSlider" name="startupDelaySlider">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="0">
-       <widget class="QPushButton" name="formatEepromButton">
-        <property name="text">
-         <string>Factory Reset</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="1">
-       <widget class="QLabel" name="firmwareVersion">
-        <property name="text">
-         <string>version</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1" colspan="4">
+      <item row="8" column="1" colspan="4">
        <widget class="QComboBox" name="keyboardLayoutBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -271,255 +495,38 @@
         </item>
        </widget>
       </item>
-      <item row="1" column="4">
-       <widget class="QPushButton" name="saveButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Save</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QCheckBox" name="addReturn">
-        <property name="text">
-         <string>Add Return</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item row="11" column="4">
-       <widget class="QPushButton" name="applyAdvancedSettingsBtn">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Apply</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="2">
-       <widget class="QLabel" name="saltStatus">
-        <property name="text">
-         <string>status</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="0">
-       <widget class="QLabel" name="firmwareVersionLabel">
-        <property name="text">
-         <string>Firmware version</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="1" colspan="3">
-       <widget class="QSlider" name="keypressDelaySlider">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QCheckBox" name="showPassword">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Show Password</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0" colspan="2">
-       <widget class="QCheckBox" name="advancedSettingsToggle">
-        <property name="text">
-         <string>Advanced Settings</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QPushButton" name="generateButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Generate</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QSpinBox" name="generateLength">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>21</height>
-         </size>
-        </property>
-        <property name="minimum">
-         <number>1</number>
-        </property>
-        <property name="value">
-         <number>12</number>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="3">
-       <widget class="QPushButton" name="updateSaltButton">
-        <property name="text">
-         <string>Create Secret</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="deviceIdLabel">
-        <property name="text">
-         <string>Device ID</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="5">
-       <widget class="QLabel" name="titleLabel">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>some text here</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="4">
-       <widget class="QPushButton" name="upgradeFirmwareButton">
-        <property name="text">
-         <string>Upgrade</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="3">
-       <widget class="QPushButton" name="restoreDefaultsBtn">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Defaults</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="2" alignment="Qt::AlignRight">
-       <widget class="QLabel" name="bootloaderLabel">
-        <property name="text">
-         <string>Bootloader </string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="4">
-       <widget class="QSpinBox" name="keypressDelaySpin"/>
-      </item>
-      <item row="9" column="0">
-       <widget class="QLabel" name="labelKeypressDelay">
-        <property name="text">
-         <string>Keypress delay</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="3">
        <widget class="QLabel" name="bootloaderStatus">
         <property name="text">
          <string>locked</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="4">
+      <item row="7" column="4">
        <widget class="QPushButton" name="typeButton">
         <property name="text">
          <string>C.P. Type</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="2">
-       <widget class="QCheckBox" name="copyProtectToggle">
-        <property name="text">
-         <string>Copy Protect</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="3">
-       <widget class="QCheckBox" name="daemonAutoType">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Auto type</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="4">
-       <widget class="QCheckBox" name="daemonAutoLock">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Auto logout</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
+      <item row="6" column="1">
        <widget class="QPushButton" name="daemonRestartButton">
         <property name="text">
          <string>Stop</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="2">
-       <widget class="QLabel" name="daemonStatusLabel">
+      <item row="11" column="0">
+       <widget class="QLabel" name="firmwareVersionLabel">
         <property name="text">
-         <string>stopped</string>
+         <string>Firmware version</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLabel" name="deviceId">
+        <property name="text">
+         <string>blank</string>
         </property>
        </widget>
       </item>
@@ -532,8 +539,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>614</width>
-     <height>21</height>
+     <width>623</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuAnyKey">
