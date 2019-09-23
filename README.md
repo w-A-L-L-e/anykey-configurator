@@ -24,6 +24,9 @@ Upgrade salt is allowed to unlink from a foreign pc. Devices map file is managed
 
 
 
-Windows version is also nearly completed:
+Windows version is now also completed with installer added (we just need to sign the executable for easier distribution)
 
 <img width="414" alt="anykey_windows_june_2019_advanced" src="https://user-images.githubusercontent.com/710803/59970343-94a64d00-955b-11e9-8449-94b602a09505.PNG">
+
+
+

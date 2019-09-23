@@ -1,0 +1,16 @@
+# open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
+
+Compile fixes for upgrading form high sierra into mojave:
+xcode-select --install
+xcrun -sdk macosx --show-sdk-path
+this shows: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
+
+Edit following files:
+cd /usr/local/Qt-5.9.0
+mkspecs/common/macx.conf:QMAKE_MAC_SDK           = macosx10.14
+mkspecs/qdevice.pri:QMAKE_MAC_SDK           = macosx10.14
+==> change both into QMAKE_MAC_SDK           = macosx10.15
+
+Then run this:
+sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
