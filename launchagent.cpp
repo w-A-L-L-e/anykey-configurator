@@ -184,7 +184,7 @@ algorithm   :
 -----------------------------------------------------------------------------*/
 bool LaunchAgent::is_installed()
 {
-    ifstream rp(plist_path.c_str());
+    std::ifstream rp(plist_path.c_str());
     if (rp.is_open()) {
         rp.close();
         return true;
@@ -210,11 +210,11 @@ void LaunchAgent::install()
 #ifdef __APPLE__
     // truncate any old content and write in local lib folder (like we see other apps do
     // examples are pulsesecure postgres agent etc.
-    ofstream lf;
-    lf.open(plist_path.c_str(), ofstream::trunc);
+    std::ofstream lf;
+    lf.open(plist_path.c_str(), std::ofstream::trunc);
 
     if (!lf.is_open()) {
-        cerr << "Could not write to plist file!" << endl;
+        cerr << "Could not write to plist file!" << std::endl;
         return;
     }
 
@@ -223,7 +223,7 @@ void LaunchAgent::install()
 
     string res = runCommand("launchctl load -w " + plist_path);
 #else
-    cerr << "Unsupported platform detected for launchctl. This is Mac OS only!" << endl;
+    std::cerr << "Unsupported platform detected for launchctl. This is Mac OS only!" << std::endl;
 #endif
 }
 

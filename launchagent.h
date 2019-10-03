@@ -12,7 +12,6 @@ bugreport(log):
 #define LAUNCHAGENT_H
 
 #include <string>
-using namespace std;
 
 class LaunchAgent {
 
@@ -26,7 +25,7 @@ class LaunchAgent {
     //==============
     void install();
     void uninstall();
-    string getPath()
+    std::string getPath()
     {
         return plist_path;
     }
@@ -36,15 +35,15 @@ class LaunchAgent {
     // private members:
     //================
     void init();
-    string runCommand(const string &command);
-    string getHomeDir();
+    std::string runCommand(const std::string &command);
+    std::string getHomeDir();
 
     // private locals:
     //===============
-    string autoStartPlist();
-    string autoRestartPlist();
+    std::string autoStartPlist();
+    std::string autoRestartPlist();
 
-    string plist_path; // stores home_dir/plist_file_path
+    std::string plist_path; // stores home_dir/plist_file_path
 
 }; // end of class LaunchAgent
 
