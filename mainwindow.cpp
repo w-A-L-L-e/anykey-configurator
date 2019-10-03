@@ -34,7 +34,6 @@ bugreport(log):
 #include "launchagent.h"
 #endif
 
-using namespace std;
 
 // exe name of anykey_save
 #define ANYKEY_SAVE "anykey_save"

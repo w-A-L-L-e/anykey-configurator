@@ -20,7 +20,9 @@ bugreport(log):
 #include <sys/types.h>
 #include <unistd.h>
 
-using namespace std;
+using std::string;
+using std::cerr;
+using std::endl;
 
 /*-----------------------------------------------------------------------------
 name        : init
