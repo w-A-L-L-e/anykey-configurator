@@ -34,7 +34,6 @@ bugreport(log):
 #include "launchagent.h"
 #endif
 
-using namespace std;
 
 // exe name of anykey_save
 #define ANYKEY_SAVE "anykey_save"
@@ -1436,13 +1435,13 @@ void MainWindow::on_daemonRestartButton_clicked()
 
 void MainWindow::on_typeButton_clicked()
 {
-    runCommand("type\n");
-    setStatus("Sending challenge response to type password...");
+    setStatus("on_typeButton_clicked: Sending challenge response to type password...");
     ui->passwordEdit->selectAll();
     ui->passwordEdit->setFocus();
+    runCommand("type\n");
 }
 
-void MainWindow::on_daemonAutoType_toggled(bool checked)
+void MainWindow::on_daemonAutoType_toggled(bool)
 {
     this->writeGuiControls();
 }

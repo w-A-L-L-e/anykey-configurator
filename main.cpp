@@ -17,7 +17,6 @@ bugreport(log):
 #include <QSystemSemaphore>
 
 #include <iostream>
-using namespace std;
 
 // The sharedmemory ipc stuff is a bit messy, we might refactor this into a seperate class later on
 // for now it works really well so we're keeping it in. It basically only allows one configurator to
@@ -72,8 +71,8 @@ int main(int argc, char *argv[])
     // If you already run one instance of the application, then we inform the user about it
     // and complete the current instance of the application
     if (is_running) {
-        cout << "The application was already started before. Exiting and bringing other instance to front... " << endl;
-        return 1;
+      std::cout << "The application was already started before. Exiting and bringing other instance to front... " << std::endl;
+      return 1;
     }
 
     MainWindow w;
