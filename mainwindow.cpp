@@ -1060,7 +1060,7 @@ bool MainWindow::newerFirmwareAvailable(const QString &firmware_version)
     // TODO: download + check version in firmware.bin
     // compare and if current version is lower return true
 
-    return true; // right now always enable upgrade button.
+    return false; // for kickstarter all are flashed to latest version
 }
 
 // Save settings with write_flags: ...
