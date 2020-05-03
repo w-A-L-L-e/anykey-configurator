@@ -18,11 +18,9 @@ CONFIG += static
 QT += network
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
-        launchagent.cpp
+        mainwindow.cpp
 
-HEADERS  += mainwindow.h \
-            launchagent.h 
+HEADERS  += mainwindow.h
 FORMS    += anykey.ui
 
 RESOURCES += \
