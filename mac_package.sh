@@ -55,8 +55,10 @@ DATE=`date "+%m-%d-%Y"`
 echo "Now change icon sizes before making final image..."
 read
 
+rm AnyKeyInstaller.dmg
+
 echo "Making final image..."
-hdiutil convert AnyKeyConfigurator.dmg -format UDZO -o AnyKeyConfigurator_$DATE.dmg
+hdiutil convert AnyKeyConfigurator.dmg -format UDZO -o AnyKeyInstaller.dmg
 
 echo "removing temp dmg..."
 rm AnyKeyConfigurator.dmg
