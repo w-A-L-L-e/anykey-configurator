@@ -821,6 +821,52 @@ bool MainWindow::registerLicense(QString activation_code)
 
     setStatus("Contacting anykey.shop...");
 
+    // TODO:  add uname -a output of command into registration call and save for later inspection
+    //        on windows this is systeminfo.
+    //        this implies a post or put request and also maybe look into httpS here!
+    
+    // example:
+    //  QString concatenated = "spark:spark";
+    //  QByteArray data = concatenated.toLocal8Bit().toBase64();
+    //  QString headerData = "Basic " + data;
+    //  QNetworkRequest request;
+    //  request.setUrl(QUrl("https://api.spark.io/oauth/token"));
+    //  request.setRawHeader("Authorization", headerData.toLocal8Bit());
+    // 
+    // POST request example:
+    //    manager = new QNetworkAccessManager(this);
+    //    connect(manager, SIGNAL(finished(QNetworkReply*)),
+    //            this, SLOT(replyFinished(QNetworkReply*)));
+    //
+    //    connect(manager, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
+    //            SLOT(provideAuthenication(QNetworkReply*,QAuthenticator*)));
+    //    
+    // QByteArray postData;
+    // postData.append("username=MYEMAIL");
+    // postData.append("password=MYPASS");
+    // manager->post(QNetworkRequest(QUrl("https://api.spark.io/oauth/token")), postData);
+    //
+    // void clientGUI::provideAuthenication(QNetworkReply *reply, QAuthenticator *ator){
+    //    qDebug() << "INSIDE AUTH";
+    //    qDebug() << reply->readAll(); // this is just to see what we received
+    //    ator->setUser(QString("spark"));
+    //    ator->setPassword(QString("spark"));
+    //}
+    //
+    //void clientGUI::replyFinished(QNetworkReply *reply){
+    //    if(reply->error())
+    //    {
+    //        qDebug() << "ERROR!";
+    //        qDebug() << reply->errorString();
+    //    }
+    //    else {
+    //     //i print out some stuff pertaining to the message
+    //   }
+    //
+    //    reply->deleteLater();
+    //}
+
+
     // the HTTP request
     QNetworkRequest req(QUrl(QString("http://anykey.shop/activate/" + activation_code + ".json")));
     // QNetworkRequest req( QUrl( QString("http://localhost:3000/activate/"+activation_code+".json") ) );
