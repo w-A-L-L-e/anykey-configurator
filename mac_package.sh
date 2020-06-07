@@ -75,6 +75,7 @@ open .
 
 DATE=`date "+%m-%d-%Y"`
 echo "Now change icon sizes before making final image..."
+echo "Open AnykeyConfigurator.dmg go inside and press APPLE+j key, set icons to larger size and default to icon view"
 read
 
 #rm AnyKeyInstaller.dmg
