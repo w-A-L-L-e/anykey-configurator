@@ -2,7 +2,7 @@
 author        : Walter Schreppers
 filename      : mainwindow.cpp
 created       : 3/6/2017
-modified      : today ;) 
+modified      : 7/6/2020
 version       :
 copyright     : Walter Schreppers
 bugreport(log):
@@ -34,11 +34,10 @@ bugreport(log):
 #include "launchagent.h"
 #endif
 
-
 // exe name of anykey_save
 #define ANYKEY_SAVE "anykey_save"
 #define ANYKEY_TYPE_DAEMON "anykey_crd"
-#define CONFIGURATOR_VERSION "2.3.2"
+#define CONFIGURATOR_VERSION "2.3.3"
 
 // constructor checks license and shows
 // alternate gui if license check fails to register.

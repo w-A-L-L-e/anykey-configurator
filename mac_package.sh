@@ -37,6 +37,12 @@ upx -9 mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/AnyKey
 upx -9 mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_crd
 upx -9 mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_save
 
+echo "codesign binaries..."
+codesign -s "AnyKey" mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/AnyKey
+codesign -s "AnyKey" mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_save
+codesign -s "AnyKey" mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_crd
+
+
 echo "create .dmg image"
 cd mac-installer/AnyKeyConfigurator
 ln -s /Applications Applications
@@ -55,10 +61,13 @@ DATE=`date "+%m-%d-%Y"`
 echo "Now change icon sizes before making final image..."
 read
 
-rm AnyKeyInstaller.dmg
+#rm AnyKeyInstaller.dmg
 
 echo "Making final image..."
-hdiutil convert AnyKeyConfigurator.dmg -format UDZO -o AnyKeyInstaller.dmg
+hdiutil convert AnyKeyConfigurator.dmg -format UDZO -o AnyKeyInstaller_$DATE.dmg
+echo "Now codesign the installer dmg also"
+
+codesign -s "AnyKey" AnyKeyInstaller_$DATE.dmg
 
 echo "removing temp dmg..."
 rm AnyKeyConfigurator.dmg
