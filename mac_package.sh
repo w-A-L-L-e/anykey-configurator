@@ -27,7 +27,9 @@ echo "copy new version..."
 cp -r AnyKey.app mac-installer/AnyKeyConfigurator/
 
 echo "cleanup..."
-echo "add_return=1;copy_protect=0;auto_type=0;advanced_settings=0;" > mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey.cfg
+
+# config file is messing up our signing
+# echo "add_return=1;copy_protect=0;auto_type=0;advanced_settings=0;" > mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey.cfg
 rm -f mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/devices.map
 rm -f mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/license.json
 
