@@ -29,7 +29,9 @@ cp -r AnyKey.app mac-installer/AnyKeyConfigurator/
 echo "cleanup..."
 
 # config file is messing up our signing
-# echo "add_return=1;copy_protect=0;auto_type=0;advanced_settings=0;" > mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey.cfg
+echo "add_return=1;copy_protect=0;auto_type=0;advanced_settings=0;" > mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey.cfg
+# icns file was offending, find . -type f -name '*.icns' -exec xattr -c {} \; fixed it
+rm -f mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey.cfg
 rm -f mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/devices.map
 rm -f mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/license.json
 
@@ -52,9 +54,9 @@ echo "codesign binaries..."
 #codesign -s "AnyKey" mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_crd
 
 # mac os developer certificate for 99$ yeah that's becoming a cash-cow for apple isn't it...
-codesign -s "Developer ID Application: Walter Schreppers (X2ZBWYWFFA)" mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/AnyKey
 codesign -s "Developer ID Application: Walter Schreppers (X2ZBWYWFFA)" mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_save
 codesign -s "Developer ID Application: Walter Schreppers (X2ZBWYWFFA)" mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_crd
+codesign -s "Developer ID Application: Walter Schreppers (X2ZBWYWFFA)" --deep --force mac-installer/AnyKeyConfigurator/AnyKey.app
 
 
 echo "create .dmg image"
