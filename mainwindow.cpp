@@ -1329,6 +1329,13 @@ void MainWindow::hideAdvancedItems()
     this->setMinimumHeight(198); // 178 without mainProgressBar
     this->setMaximumHeight(198);
 #endif
+
+#ifdef __linux__
+     //only needed on a scaled ubuntu (200%)
+    this->setMinimumWidth(900);
+    this->setMinimumHeight(178*2); // 178 without mainProgressBar
+    this->setMaximumHeight(178*2);
+#endif
 }
 
 void MainWindow::on_advancedSettingsToggle_clicked(bool checked)
@@ -1389,6 +1396,13 @@ void MainWindow::on_advancedSettingsToggle_clicked(bool checked)
         this->setMinimumHeight(400); // 380 without mainProgressBar
         this->setMaximumHeight(400);
 #endif
+#ifdef __linux__
+     //only needed on a scaled ubuntu (200%)
+    this->setMinimumWidth(900);
+    this->setMinimumHeight(400*2); // 178 without mainProgressBar
+    this->setMaximumHeight(400*2);
+#endif
+
     }
     else { // hide items
         hideAdvancedItems();
