@@ -29,9 +29,9 @@ then
 fi
 
 echo "Copying binaries to /usr/bin/..."
-cp anykey_cnf /usr/bin/
 cp anykey_save /usr/bin/
 cp anykey_crd /usr/bin/
+cp anykey_cfg /usr/bin/
 
 echo "Adding 50-anykey.rules for device mapping"
 echo 'KERNEL=="ttyACM[0-9]*", SUBSYSTEM=="tty", ATTRS{idVendor}=="2341", ATTRS{idProduct}=="8036", ATTRS{product}=="AnyKey" SYMLINK="ttyAnyKey", MODE="0666"' > /etc/udev/rules.d/50-anykey.rules

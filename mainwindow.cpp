@@ -1328,14 +1328,7 @@ void MainWindow::hideAdvancedItems()
     this->setMinimumWidth(600);
     this->setMinimumHeight(198); // 178 without mainProgressBar
     this->setMaximumHeight(198);
-#else
-    // windows, linux
-    /*
-        this->setMinimumWidth(800); //520
-        this->setMinimumHeight(237); //187
-        this->setMaximumHeight(237);
-    */
-
+#else //windows
     this->setMinimumWidth(600);
     this->setMinimumHeight(198); // 178 without mainProgressBar
     this->setMaximumHeight(198);
@@ -1343,9 +1336,11 @@ void MainWindow::hideAdvancedItems()
 
 #ifdef __linux__
      //only needed on a scaled ubuntu (200%)
-    this->setMinimumWidth(900);
-    this->setMinimumHeight(178*2); // 178 without mainProgressBar
-    this->setMaximumHeight(178*2);
+     //TODO: add menu item or configfile entry for this! 
+     // and do 900 width and height = 178*2 for scaled resolutions
+    this->setMinimumWidth(600);
+    this->setMinimumHeight(198); // 178 without mainProgressBar
+    this->setMaximumHeight(198);
 #endif
 }
 
@@ -1396,22 +1391,19 @@ void MainWindow::on_advancedSettingsToggle_clicked(bool checked)
         this->setMinimumWidth(600);
         this->setMinimumHeight(440); // 420 without mainProgressBar
         this->setMaximumHeight(440);
-#else
-        // windows and linux
-        /*
-         this->setMinimumWidth(800); //520 looks good on 200% and 150% scale
-         this->setMinimumHeight(580); //380 but width 640 and height 420 is minimum for 100% scale on retina...
-         this->setMaximumHeight(580);
-        */
+#else 
+        // windows
         this->setMinimumWidth(600);
         this->setMinimumHeight(400); // 380 without mainProgressBar
         this->setMaximumHeight(400);
 #endif
 #ifdef __linux__
      //only needed on a scaled ubuntu (200%)
-    this->setMinimumWidth(900);
-    this->setMinimumHeight(400*2); // 178 without mainProgressBar
-    this->setMaximumHeight(400*2);
+     //TODO: add scale possiblity in configfile, here it should
+     // by 900 x 800 size (for instance our ubuntu build virtualbox)
+    this->setMinimumWidth(600);
+    this->setMinimumHeight(400); // 178 without mainProgressBar
+    this->setMaximumHeight(400);
 #endif
 
     }
