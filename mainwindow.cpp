@@ -121,7 +121,13 @@ MainWindow::~MainWindow()
 void MainWindow::writeGuiControls()
 {
     QString home_path = QCoreApplication::applicationDirPath();
+
+#ifdef __linux__
+    QString fileName("/etc/anykey/anykey.cfg");
+#else
     QString fileName(home_path + "/anykey.cfg");
+#endif
+    
     QFile config_file(fileName);
     if (!config_file.open(QIODevice::WriteOnly)) {
         QString msg = QString(tr("Unable to save configuration to file: %1")).arg(fileName);
@@ -146,7 +152,12 @@ void MainWindow::writeGuiControls()
 void MainWindow::readGuiControls()
 {
     QString home_path = QCoreApplication::applicationDirPath();
+#ifdef __linux__
+    QString fileName("/etc/anykey/anykey.cfg");
+#else
     QString fileName(home_path + "/anykey.cfg");
+#endif
+
     QFile config_file(fileName);
     if (config_file.open(QIODevice::ReadOnly)) {
 
