@@ -9,6 +9,7 @@
 # description   : Compile and package helper script for Linux
 #=============================================================================
 
+sudo apt install qt5-default
 cp AnyKey.pro_linux AnyKey.pro
 
 echo "remove old version..."
