@@ -43,6 +43,12 @@ udevadm control --reload-rules && service udev restart && udevadm trigger
 echo "Installing Qt libraries"
 apt install qt5-default
 
+echo "Making devices.map and anykey.cfg writeable in /etc/anykey. For higher security chown/chmod it for your specific users"
+touch /etc/anykey/devices.map
+touch /etc/anykey/anykey.cfg
+chmod 666 /etc/anykey/devices.map
+chmod 666 /etc/anykey/anykey.cfg
+
 echo "All done"
 echo "The configurator is installed in /usr/bin"
-echo "Type anykey_cnf to start it"
+echo "Type anykey_cfg to start it"
