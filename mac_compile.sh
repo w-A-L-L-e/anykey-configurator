@@ -9,7 +9,7 @@
 # description   : Compile and package helper script for Mac OS
 #=============================================================================
 
-cp AnyKey.pro_mac AnyKey.pro
+# cp AnyKey.pro_mac AnyKey.pro
 
 qmake AnyKey.pro_mac
 make

@@ -27,7 +27,11 @@ echo "copy new version..."
 cp -r AnyKey.app mac-installer/AnyKeyConfigurator/
 
 echo "cleanup..."
+
+# config file is messing up our signing
 echo "add_return=1;copy_protect=0;auto_type=0;advanced_settings=0;" > mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey.cfg
+# icns file was offending, find . -type f -name '*.icns' -exec xattr -c {} \; fixed it
+rm -f mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey.cfg
 rm -f mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/devices.map
 rm -f mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/license.json
 
@@ -36,6 +40,24 @@ echo "compress binaries for distribution..."
 upx -9 mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/AnyKey
 upx -9 mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_crd
 upx -9 mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_save
+
+# you download and open your .cer file developerID_application.cer after you open it, open xcode
+# then just export all certificates by going into accounts and clicking + sign, I chose developer id application
+# then export it by right clicking. Then you can use this with the full name to sign (ow yes also open the .p12 file first, it asks
+# password and use the same when signing) : more details here https://help.apple.com/xcode/mac/current/#/dev154b28f09?sub=dev23755c6c6
+
+echo "codesign binaries..."
+
+#thes use the comodo certificate that we also have on windows, but it basically does not work at all (you have to right-click in order to install)
+#codesign -s "AnyKey" mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/AnyKey
+#codesign -s "AnyKey" mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_save
+#codesign -s "AnyKey" mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_crd
+
+# mac os developer certificate for 99$ yeah that's becoming a cash-cow for apple isn't it...
+codesign -s "Developer ID Application: Walter Schreppers (X2ZBWYWFFA)" mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_save
+codesign -s "Developer ID Application: Walter Schreppers (X2ZBWYWFFA)" mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_crd
+codesign -s "Developer ID Application: Walter Schreppers (X2ZBWYWFFA)" --deep --force mac-installer/AnyKeyConfigurator/AnyKey.app
+
 
 echo "create .dmg image"
 cd mac-installer/AnyKeyConfigurator
@@ -53,12 +75,16 @@ open .
 
 DATE=`date "+%m-%d-%Y"`
 echo "Now change icon sizes before making final image..."
+echo "Open AnykeyConfigurator.dmg go inside and press APPLE+j key, set icons to larger size and default to icon view"
 read
 
-rm AnyKeyInstaller.dmg
+#rm AnyKeyInstaller.dmg
 
 echo "Making final image..."
-hdiutil convert AnyKeyConfigurator.dmg -format UDZO -o AnyKeyInstaller.dmg
+hdiutil convert AnyKeyConfigurator.dmg -format UDZO -o AnyKeyInstaller_$DATE.dmg
+echo "Now codesign the installer dmg also"
+#codesign -s "AnyKey" AnyKeyInstaller_$DATE.dmg
+codesign -s "Developer ID Application: Walter Schreppers (X2ZBWYWFFA)" AnyKeyInstaller_$DATE.dmg
 
 echo "removing temp dmg..."
 rm AnyKeyConfigurator.dmg

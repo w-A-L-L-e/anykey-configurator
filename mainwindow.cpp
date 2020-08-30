@@ -2,7 +2,7 @@
 author        : Walter Schreppers
 filename      : mainwindow.cpp
 created       : 3/6/2017
-modified      : today ;) 
+modified      : 7/6/2020
 version       :
 copyright     : Walter Schreppers
 bugreport(log):
@@ -34,11 +34,10 @@ bugreport(log):
 #include "launchagent.h"
 #endif
 
-
 // exe name of anykey_save
 #define ANYKEY_SAVE "anykey_save"
 #define ANYKEY_TYPE_DAEMON "anykey_crd"
-#define CONFIGURATOR_VERSION "2.3.2"
+#define CONFIGURATOR_VERSION "2.3.3"
 
 // constructor checks license and shows
 // alternate gui if license check fails to register.
@@ -122,7 +121,13 @@ MainWindow::~MainWindow()
 void MainWindow::writeGuiControls()
 {
     QString home_path = QCoreApplication::applicationDirPath();
+
+#ifdef __linux__
+    QString fileName("/etc/anykey/anykey.cfg");
+#else
     QString fileName(home_path + "/anykey.cfg");
+#endif
+    
     QFile config_file(fileName);
     if (!config_file.open(QIODevice::WriteOnly)) {
         QString msg = QString(tr("Unable to save configuration to file: %1")).arg(fileName);
@@ -147,7 +152,12 @@ void MainWindow::writeGuiControls()
 void MainWindow::readGuiControls()
 {
     QString home_path = QCoreApplication::applicationDirPath();
+#ifdef __linux__
+    QString fileName("/etc/anykey/anykey.cfg");
+#else
     QString fileName(home_path + "/anykey.cfg");
+#endif
+
     QFile config_file(fileName);
     if (config_file.open(QIODevice::ReadOnly)) {
 
@@ -822,6 +832,52 @@ bool MainWindow::registerLicense(QString activation_code)
 
     setStatus("Contacting anykey.shop...");
 
+    // TODO:  add uname -a output of command into registration call and save for later inspection
+    //        on windows this is systeminfo.
+    //        this implies a post or put request and also maybe look into httpS here!
+    
+    // example:
+    //  QString concatenated = "spark:spark";
+    //  QByteArray data = concatenated.toLocal8Bit().toBase64();
+    //  QString headerData = "Basic " + data;
+    //  QNetworkRequest request;
+    //  request.setUrl(QUrl("https://api.spark.io/oauth/token"));
+    //  request.setRawHeader("Authorization", headerData.toLocal8Bit());
+    // 
+    // POST request example:
+    //    manager = new QNetworkAccessManager(this);
+    //    connect(manager, SIGNAL(finished(QNetworkReply*)),
+    //            this, SLOT(replyFinished(QNetworkReply*)));
+    //
+    //    connect(manager, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
+    //            SLOT(provideAuthenication(QNetworkReply*,QAuthenticator*)));
+    //    
+    // QByteArray postData;
+    // postData.append("username=MYEMAIL");
+    // postData.append("password=MYPASS");
+    // manager->post(QNetworkRequest(QUrl("https://api.spark.io/oauth/token")), postData);
+    //
+    // void clientGUI::provideAuthenication(QNetworkReply *reply, QAuthenticator *ator){
+    //    qDebug() << "INSIDE AUTH";
+    //    qDebug() << reply->readAll(); // this is just to see what we received
+    //    ator->setUser(QString("spark"));
+    //    ator->setPassword(QString("spark"));
+    //}
+    //
+    //void clientGUI::replyFinished(QNetworkReply *reply){
+    //    if(reply->error())
+    //    {
+    //        qDebug() << "ERROR!";
+    //        qDebug() << reply->errorString();
+    //    }
+    //    else {
+    //     //i print out some stuff pertaining to the message
+    //   }
+    //
+    //    reply->deleteLater();
+    //}
+
+
     // the HTTP request
     QNetworkRequest req(QUrl(QString("http://anykey.shop/activate/" + activation_code + ".json")));
     // QNetworkRequest req( QUrl( QString("http://localhost:3000/activate/"+activation_code+".json") ) );
@@ -1272,14 +1328,16 @@ void MainWindow::hideAdvancedItems()
     this->setMinimumWidth(600);
     this->setMinimumHeight(198); // 178 without mainProgressBar
     this->setMaximumHeight(198);
-#else
-    // windows, linux
-    /*
-        this->setMinimumWidth(800); //520
-        this->setMinimumHeight(237); //187
-        this->setMaximumHeight(237);
-    */
+#else //windows
+    this->setMinimumWidth(600);
+    this->setMinimumHeight(198); // 178 without mainProgressBar
+    this->setMaximumHeight(198);
+#endif
 
+#ifdef __linux__
+     //only needed on a scaled ubuntu (200%)
+     //TODO: add menu item or configfile entry for this! 
+     // and do 900 width and height = 178*2 for scaled resolutions
     this->setMinimumWidth(600);
     this->setMinimumHeight(198); // 178 without mainProgressBar
     this->setMaximumHeight(198);
@@ -1333,17 +1391,21 @@ void MainWindow::on_advancedSettingsToggle_clicked(bool checked)
         this->setMinimumWidth(600);
         this->setMinimumHeight(440); // 420 without mainProgressBar
         this->setMaximumHeight(440);
-#else
-        // windows and linux
-        /*
-         this->setMinimumWidth(800); //520 looks good on 200% and 150% scale
-         this->setMinimumHeight(580); //380 but width 640 and height 420 is minimum for 100% scale on retina...
-         this->setMaximumHeight(580);
-        */
+#else 
+        // windows
         this->setMinimumWidth(600);
         this->setMinimumHeight(400); // 380 without mainProgressBar
         this->setMaximumHeight(400);
 #endif
+#ifdef __linux__
+     //only needed on a scaled ubuntu (200%)
+     //TODO: add scale possiblity in configfile, here it should
+     // by 900 x 800 size (for instance our ubuntu build virtualbox)
+    this->setMinimumWidth(600);
+    this->setMinimumHeight(400); // 178 without mainProgressBar
+    this->setMaximumHeight(400);
+#endif
+
     }
     else { // hide items
         hideAdvancedItems();
