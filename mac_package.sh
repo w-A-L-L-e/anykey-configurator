@@ -9,8 +9,9 @@
 # description   : Compile and package helper script for Mac OS
 #=============================================================================
 
-qmake AnyKey.pro_mac
-make
+#qmake AnyKey.pro_mac
+#make
+./mac_compile.sh
 
 # already copied using make gui in anykey_save_tool folder now!
 #cp ~/bin/anykey_save AnyKey.app/Contents/MacOS/
@@ -35,11 +36,11 @@ rm -f mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey.cfg
 rm -f mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/devices.map
 rm -f mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/license.json
 
-
-echo "compress binaries for distribution..."
-upx -9 mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/AnyKey
-upx -9 mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_crd
-upx -9 mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_save
+echo "skipping upx compress as it fails on MacOS Big Sur"
+#echo "compress binaries for distribution..."
+#upx -9 mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/AnyKey
+#upx -9 mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_crd
+#upx -9 mac-installer/AnyKeyConfigurator/AnyKey.app/Contents/MacOS/anykey_save
 
 # you download and open your .cer file developerID_application.cer after you open it, open xcode
 # then just export all certificates by going into accounts and clicking + sign, I chose developer id application
