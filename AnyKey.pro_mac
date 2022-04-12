@@ -4,8 +4,7 @@
 # Author: Walter Schreppers
 #
 #-------------------------------------------------
-# QMAKE_MAC_SDK = macosx10.14
-QMAKE_MAC_SDK = macosx
+# QMAKE_MAC_SDK = macosx10.14 macosx12.1 now
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets

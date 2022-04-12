@@ -9,11 +9,9 @@
 # description   : Compile and package helper script for Mac OS
 #=============================================================================
 
-# cp AnyKey.pro_mac AnyKey.pro
-
-# qmake AnyKey.pro_mac #broken sdk path, temp workaround with custom makefile
-make -f Makefile_big_sur clean
-make -f Makefile_big_sur
+/usr/local/Qt-5.9.0/bin/qmake AnyKey.pro_mac -o Makefile
+make clean
+make
 
 # already copied using make gui in anykey_save_tool folder now!
 #cp ~/bin/anykey_save AnyKey.app/Contents/MacOS/

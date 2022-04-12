@@ -1,0 +1,26 @@
+Install xcode tools:
+$ xcode-select --install
+
+Also install XCode itself (+accept license)
+
+Run this to see what SDK version you have:
+$ xcrun -sdk macosx --show-sdk-path
+
+
+# Optional: Have xcode tools installed and headers
+# open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
+
+edit following files:
+/usr/local/Qt-5.9.0/mkspecs/common/macx.conf   
+ change the line : QMAKE_MAC_SDK           = macosx10.14
+
+/usr/local/Qt-5.9.0/mkspecs/qdevice.pri
+change the line : QMAKE_MAC_SDK           = macosx10.14
+
+==> change both into QMAKE_MAC_SDK           = macosx12.1 or what is given by xcrun command above
+
+Then run this:
+sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+now we can compile with 
+./mac_compile.sh
