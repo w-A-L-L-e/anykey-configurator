@@ -105,7 +105,7 @@ MainWindow::~MainWindow()
     if (minimizeAction) delete minimizeAction;
     if (restoreAction) delete restoreAction;
     if (quitAction) delete quitAction;
-        // delete maximizeAction; //deprecated
+    // delete maximizeAction; //deprecated
 #ifdef __APPLE__
     if (typeAction) delete typeAction;
     if (autostartAction) delete autostartAction;
@@ -127,7 +127,7 @@ void MainWindow::writeGuiControls()
 #else
     QString fileName(home_path + "/anykey.cfg");
 #endif
-    
+
     QFile config_file(fileName);
     if (!config_file.open(QIODevice::WriteOnly)) {
         QString msg = QString(tr("Unable to save configuration to file: %1")).arg(fileName);
@@ -142,11 +142,11 @@ void MainWindow::writeGuiControls()
     controls += "advanced_settings=" + QString::number(ui->advancedSettingsToggle->isChecked()) + ";";
 
     QTextStream outputStream(&config_file);
-    outputStream << controls << endl;
+    outputStream << controls << Qt::endl;
 
     config_file.close();
 
-    qDebug() << "Write anykey.cfg success" << endl;
+    qDebug() << "Write anykey.cfg success" << Qt::endl;
 }
 
 void MainWindow::readGuiControls()
@@ -181,7 +181,7 @@ void MainWindow::readGuiControls()
         config_file.close();
 
         qDebug() << "Read anykey.cfg success"
-                 << " add_return=" << add_return << " copy_protect=" << copy_protect << " auto_type=" << auto_type << endl;
+                 << " add_return=" << add_return << " copy_protect=" << copy_protect << " auto_type=" << auto_type << Qt::endl;
 
         if (add_return > 0)
             ui->addReturn->setChecked(true);
@@ -204,7 +204,7 @@ void MainWindow::readGuiControls()
             ui->advancedSettingsToggle->setChecked(false);
     }
     else {
-        qDebug() << "config file not found" << endl;
+        qDebug() << "config file not found" << Qt::endl;
     }
 }
 
@@ -288,7 +288,7 @@ bool MainWindow::checkLicense()
     if (licenseRegistered) {
         return true;
     }
-    qDebug() << "checking license..." << endl;
+    qDebug() << "checking license..." << Qt::endl;
 
     QString home_path = QCoreApplication::applicationDirPath();
 
@@ -335,7 +335,7 @@ bool MainWindow::checkLicense()
 // give user nice feedback of what is happening
 void MainWindow::setStatus(const QString &msg)
 {
-    qDebug() << "status: " << msg << endl;
+    qDebug() << "status: " << msg << Qt::endl;
     statusBar()->showMessage(msg, 5000);
 }
 
@@ -373,7 +373,7 @@ void MainWindow::checkShowWindow()
     sharedMemory.unlock();
 
     if (showWindow) {
-        qDebug() << "Bringing configurator to front, someone tried starting a new instance." << endl;
+        qDebug() << "Bringing configurator to front, someone tried starting a new instance." << Qt::endl;
         showConfigurator();
     }
 }
@@ -541,7 +541,7 @@ void MainWindow::readCRD()
 
 void MainWindow::parseFirmwareUpgrade(const QString &line)
 {
-    qDebug() << "parsing:" << line << endl;
+    qDebug() << "parsing:" << line << Qt::endl;
     QString status = line.split("firmware_upgrade=").at(1);
 
     if (status.contains("resetting_device")) {
@@ -624,7 +624,7 @@ void MainWindow::showRegisteredControls()
 
     // challenge response and other requests to anykey
     startAnykeyCRD();
-    qDebug() << "startAnyKeyCRD..." << endl;
+    qDebug() << "startAnyKeyCRD..." << Qt::endl;
 
     // ui->passwordEdit->setEchoMode(QLineEdit::PasswordEchoOnEdit);
     ui->passwordEdit->setFocus();
@@ -659,7 +659,7 @@ void MainWindow::appFocusChanged(Qt::ApplicationState state)
     if (bPendingPasswordType) {
         // Inactive means lost focus, active means you bring back to front
         if (state == Qt::ApplicationState::ApplicationInactive) {
-            qDebug() << "now typing password!" << endl;
+            qDebug() << "now typing password!" << Qt::endl;
             on_typeButton_clicked(); // only if app inactive!
         }
         bPendingPasswordType = false; // type once only
@@ -668,17 +668,17 @@ void MainWindow::appFocusChanged(Qt::ApplicationState state)
 
 void MainWindow::toggleAutostart()
 {
-    qDebug() << "toggleAutostart..." << flush;
+    qDebug() << "toggleAutostart..." << Qt::flush;
 #ifdef __APPLE__
     LaunchAgent anykeyLA;
 
     if (anykeyLA.is_installed()) {
-        qDebug() << "uninstalling..." << endl;
+        qDebug() << "uninstalling..." << Qt::endl;
         anykeyLA.uninstall();
         autostartAction->setText(tr("Enable autostart"));
     }
     else {
-        qDebug() << "installing..." << endl;
+        qDebug() << "installing..." << Qt::endl;
         anykeyLA.install();
         autostartAction->setText(tr("Disable autostart"));
     }
@@ -789,7 +789,7 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason)
 {
     switch (reason) {
     case QSystemTrayIcon::Trigger:
-        // qDebug()<<"Trayicon trigger"<<endl;
+        // qDebug()<<"Trayicon trigger"<<Qt::endl;
 #ifdef _WIN32
         // on mac single click opens menu. windows: right click
         showConfigurator();
@@ -835,7 +835,7 @@ bool MainWindow::registerLicense(QString activation_code)
     // TODO:  add uname -a output of command into registration call and save for later inspection
     //        on windows this is systeminfo.
     //        this implies a post or put request and also maybe look into httpS here!
-    
+
     // example:
     //  QString concatenated = "spark:spark";
     //  QByteArray data = concatenated.toLocal8Bit().toBase64();
@@ -843,7 +843,7 @@ bool MainWindow::registerLicense(QString activation_code)
     //  QNetworkRequest request;
     //  request.setUrl(QUrl("https://api.spark.io/oauth/token"));
     //  request.setRawHeader("Authorization", headerData.toLocal8Bit());
-    // 
+    //
     // POST request example:
     //    manager = new QNetworkAccessManager(this);
     //    connect(manager, SIGNAL(finished(QNetworkReply*)),
@@ -851,7 +851,7 @@ bool MainWindow::registerLicense(QString activation_code)
     //
     //    connect(manager, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
     //            SLOT(provideAuthenication(QNetworkReply*,QAuthenticator*)));
-    //    
+    //
     // QByteArray postData;
     // postData.append("username=MYEMAIL");
     // postData.append("password=MYPASS");
@@ -864,7 +864,7 @@ bool MainWindow::registerLicense(QString activation_code)
     //    ator->setPassword(QString("spark"));
     //}
     //
-    //void clientGUI::replyFinished(QNetworkReply *reply){
+    // void clientGUI::replyFinished(QNetworkReply *reply){
     //    if(reply->error())
     //    {
     //        qDebug() << "ERROR!";
@@ -876,7 +876,6 @@ bool MainWindow::registerLicense(QString activation_code)
     //
     //    reply->deleteLater();
     //}
-
 
     // the HTTP request
     QNetworkRequest req(QUrl(QString("http://anykey.shop/activate/" + activation_code + ".json")));
@@ -1139,7 +1138,7 @@ void MainWindow::anykeySaveSettings()
     write_flags += QString::number(activateCopyProtect) + " ";
     write_flags += "\n";
 
-    qDebug() << "runCommand=" << write_flags << endl;
+    qDebug() << "runCommand=" << write_flags << Qt::endl;
     runCommand(write_flags);
 
     readGuiControls(); // store flags to disk also
@@ -1188,7 +1187,7 @@ void MainWindow::parseWriteSaltResponse(const QString &result)
 {
     // code is 3 bytes device_id+ 32 bytes as salt
     // QString result = anykeySave( QStringList() << "-salt" << code );
-    // qDebug() << "result="<<result<<endl;
+    // qDebug() << "result="<<result<<Qt::endl;
     if (result.contains("ERROR:")) {
         QMessageBox::warning(this, tr("AnyKey"), result, QMessageBox::Ok);
         setStatus("Saving new secret failed.");
@@ -1288,7 +1287,7 @@ void MainWindow::on_passwordEdit_textChanged(const QString &)
 
 void MainWindow::on_keyboardLayoutBox_currentIndexChanged(int index)
 {
-    qDebug() << "keyboardLayoutBox index=" << index << endl;
+    qDebug() << "keyboardLayoutBox index=" << index << Qt::endl;
 }
 
 void MainWindow::hideAdvancedItems()
@@ -1328,16 +1327,16 @@ void MainWindow::hideAdvancedItems()
     this->setMinimumWidth(600);
     this->setMinimumHeight(198); // 178 without mainProgressBar
     this->setMaximumHeight(198);
-#else //windows
+#else // windows
     this->setMinimumWidth(600);
     this->setMinimumHeight(198); // 178 without mainProgressBar
     this->setMaximumHeight(198);
 #endif
 
 #ifdef __linux__
-     //only needed on a scaled ubuntu (200%)
-     //TODO: add menu item or configfile entry for this! 
-     // and do 900 width and height = 178*2 for scaled resolutions
+    // only needed on a scaled ubuntu (200%)
+    // TODO: add menu item or configfile entry for this!
+    //  and do 900 width and height = 178*2 for scaled resolutions
     this->setMinimumWidth(600);
     this->setMinimumHeight(198); // 178 without mainProgressBar
     this->setMaximumHeight(198);
@@ -1391,21 +1390,20 @@ void MainWindow::on_advancedSettingsToggle_clicked(bool checked)
         this->setMinimumWidth(600);
         this->setMinimumHeight(440); // 420 without mainProgressBar
         this->setMaximumHeight(440);
-#else 
+#else
         // windows
         this->setMinimumWidth(600);
         this->setMinimumHeight(400); // 380 without mainProgressBar
         this->setMaximumHeight(400);
 #endif
 #ifdef __linux__
-     //only needed on a scaled ubuntu (200%)
-     //TODO: add scale possiblity in configfile, here it should
-     // by 900 x 800 size (for instance our ubuntu build virtualbox)
-    this->setMinimumWidth(600);
-    this->setMinimumHeight(400); // 178 without mainProgressBar
-    this->setMaximumHeight(400);
+        // only needed on a scaled ubuntu (200%)
+        // TODO: add scale possiblity in configfile, here it should
+        //  by 900 x 800 size (for instance our ubuntu build virtualbox)
+        this->setMinimumWidth(600);
+        this->setMinimumHeight(400); // 178 without mainProgressBar
+        this->setMaximumHeight(400);
 #endif
-
     }
     else { // hide items
         hideAdvancedItems();
